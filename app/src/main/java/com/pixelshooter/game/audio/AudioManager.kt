@@ -4,6 +4,8 @@ import android.content.Context
 import android.media.MediaPlayer
 import android.media.SoundPool
 import android.media.AudioAttributes
+import android.media.ToneGenerator
+import android.media.AudioManager
 
 /**
  * 音频管理器 - 管理背景音乐和音效
@@ -12,6 +14,7 @@ object AudioManager {
     
     private var soundPool: SoundPool? = null
     private var bgmPlayer: MediaPlayer? = null
+    private var toneGenerator: ToneGenerator? = null
     
     // 音效ID映射
     private var soundIds = mutableMapOf<SoundType, Int>()
@@ -40,6 +43,9 @@ object AudioManager {
     fun initialize(context: Context) {
         if (isInitialized) return
         
+        // 创建 ToneGenerator 用于生成简单音效
+        toneGenerator = ToneGenerator(AudioManager.STREAM_MUSIC, (sfxVolume * 100).toInt())
+        
         // 创建 SoundPool
         val audioAttributes = AudioAttributes.Builder()
             .setUsage(AudioAttributes.USAGE_GAME)
@@ -55,13 +61,6 @@ object AudioManager {
                     loadedSounds[sampleId] = status == 0
                 }
             }
-        
-        // 加载音效资源（使用系统默认音效）
-        soundPool?.let { pool ->
-            // 由于我们没有自定义音效文件，使用系统音效或留空
-            // 实际项目中应该加载 R.raw.xxx 资源
-            // soundIds[SoundType.SHOOT] = pool.load(context, R.raw.shoot, 1)
-        }
         
         isInitialized = true
     }
@@ -123,6 +122,22 @@ object AudioManager {
     fun playSound(soundType: SoundType) {
         if (!isSfxEnabled || !isInitialized) return
         
+        // 使用 ToneGenerator 生成简单音效
+        val toneType = when (soundType) {
+            SoundType.SHOOT -> ToneGenerator.TONE_DTMF_0      // 射击 - 短促音
+            SoundType.EXPLOSION -> ToneGenerator.TONE_CDMA_ALERT_CALL_GUARD // 爆炸 - 警报音
+            SoundType.POWER_UP -> ToneGenerator.TONE_SUP_RADIO_ACK  // 道具 - 确认音
+            SoundType.BOMB -> ToneGenerator.TONE_CDMA_EMERGENCY_RINGBACK // 炸弹 - 紧急音
+            SoundType.PLAYER_HIT -> ToneGenerator.TONE_SUP_ERROR // 受伤 - 错误音
+            SoundType.BOSS_APPEAR -> ToneGenerator.TONE_CDMA_SOFT_ERROR_LITE // Boss - 低音
+            SoundType.GAME_OVER -> ToneGenerator.TONE_CDMA_CALLDROP_LITE // 游戏结束
+            SoundType.VICTORY -> ToneGenerator.TONE_SUP_CONFIRM // 胜利 - 确认音
+        }
+        
+        // 播放短促音效
+        toneGenerator?.startTone(toneType, 100)
+        
+        // 备用：如果 SoundPool 加载了音效，也尝试播放
         soundIds[soundType]?.let { soundId ->
             if (loadedSounds[soundId] == true) {
                 soundPool?.play(soundId, sfxVolume, sfxVolume, 1, 0, 1.0f)
@@ -171,6 +186,8 @@ object AudioManager {
         stopBGM()
         soundPool?.release()
         soundPool = null
+        toneGenerator?.release()
+        toneGenerator = null
         isInitialized = false
     }
 }

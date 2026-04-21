@@ -149,10 +149,10 @@ class GameEngine(
 
     // ==================== 子弹碰撞 ====================
     private fun detectBulletCollisions() {
-        // 使用迭代器安全遍历，避免 ConcurrentModificationException
-        val bulletIterator = bullets.iterator()
-        while (bulletIterator.hasNext()) {
-            val bullet = bulletIterator.next()
+        // 创建子弹列表的副本进行遍历，避免 ConcurrentModificationException
+        val bulletsSnapshot = bullets.toList()
+        
+        for (bullet in bulletsSnapshot) {
             if (!bullet.isAlive) continue
             
             if (bullet.isPlayerBullet) {
