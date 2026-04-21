@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#0D0D2B"
+    android:gravity="center">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="⚡ PIXEL SHOOTER ⚡"
+        android:textColor="#FFD700"
+        android:textSize="28sp"
+        android:fontFamily="monospace"
+        android:layout_marginBottom="16dp"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="像素飞机大战"
+        android:textColor="#AAAAFF"
+        android:textSize="16sp"
+        android:fontFamily="monospace"
+        android:layout_marginBottom="60dp"/>
+
+    <Button
+        android:id="@+id/btn_start"
+        android:layout_width="200dp"
+        android:layout_height="56dp"
+        android:text="开始游戏"
+        android:textSize="18sp"
+        android:backgroundTint="#4400CCFF"
+        android:textColor="#FFFFFF"
+        android:fontFamily="monospace"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="v1.0.0"
+        android:textColor="#555577"
+        android:textSize="11sp"
+        android:layout_marginTop="40dp"
+        android:fontFamily="monospace"/>
+
+</LinearLayout>

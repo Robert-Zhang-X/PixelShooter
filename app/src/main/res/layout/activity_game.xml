@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#000000">
+
+    <!-- 游戏画面容器 -->
+    <FrameLayout
+        android:id="@+id/game_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+
+    <!-- HUD 顶部信息 -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="8dp">
+
+        <!-- Boss血量条 -->
+        <TextView
+            android:id="@+id/tv_boss_label"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="BOSS"
+            android:textColor="#FF4444"
+            android:textSize="11sp"
+            android:fontFamily="monospace"
+            android:gravity="center"
+            android:visibility="gone"/>
+
+        <ProgressBar
+            android:id="@+id/progress_boss_hp"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="match_parent"
+            android:layout_height="12dp"
+            android:progressTint="#FF2222"
+            android:progressBackgroundTint="#333333"
+            android:visibility="gone"
+            android:layout_marginBottom="4dp"/>
+
+        <!-- 分数/HP -->
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:orientation="horizontal" android:paddingTop="4dp">
+            <TextView android:id="@+id/tv_score"
+                android:layout_width="0dp" android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="分数: 0"
+                android:textColor="#FFD700"
+                android:textSize="13sp"
+                android:fontFamily="monospace"/>
+            <TextView android:id="@+id/tv_hp"
+                android:layout_width="0dp" android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="HP: 100/100"
+                android:textColor="#44FF88"
+                android:textSize="13sp"
+                android:fontFamily="monospace"
+                android:gravity="center"/>
+            <TextView android:id="@+id/tv_bombs"
+                android:layout_width="0dp" android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="炸弹×3"
+                android:textColor="#FF8800"
+                android:textSize="13sp"
+                android:fontFamily="monospace"
+                android:gravity="end"/>
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- 底部操作按钮 -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:orientation="horizontal"
+        android:padding="12dp"
+        android:gravity="space_between">
+
+        <Button
+            android:id="@+id/btn_bomb"
+            android:layout_width="80dp"
+            android:layout_height="56dp"
+            android:text="💣 炸弹"
+            android:backgroundTint="#CC4400"
+            android:textColor="#FFFFFF"
+            android:textSize="12sp"
+            android:fontFamily="monospace"/>
+
+        <View android:layout_width="0dp" android:layout_height="1dp" android:layout_weight="1"/>
+
+        <Button
+            android:id="@+id/btn_skill"
+            android:layout_width="80dp"
+            android:layout_height="56dp"
+            android:text="⚡ 技能"
+            android:backgroundTint="#0055AA"
+            android:textColor="#FFFFFF"
+            android:textSize="12sp"
+            android:fontFamily="monospace"/>
+    </LinearLayout>
+
+    <!-- 游戏结束覆盖层 -->
+    <LinearLayout
+        android:id="@+id/layout_game_over"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:background="#CC000000"
+        android:visibility="gone">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="GAME OVER"
+            android:textColor="#FF4444"
+            android:textSize="32sp"
+            android:fontFamily="monospace"
+            android:layout_marginBottom="16dp"/>
+
+        <TextView
+            android:id="@+id/tv_final_score"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#FFFFFF"
+            android:textSize="18sp"
+            android:fontFamily="monospace"
+            android:layout_marginBottom="32dp"/>
+
+        <Button
+            android:id="@+id/btn_retry"
+            android:layout_width="160dp"
+            android:layout_height="48dp"
+            android:text="再来一局"
+            android:backgroundTint="#CC4400"
+            android:textColor="#FFFFFF"
+            android:fontFamily="monospace"
+            android:layout_marginBottom="12dp"/>
+
+        <Button
+            android:id="@+id/btn_main_menu"
+            android:layout_width="160dp"
+            android:layout_height="48dp"
+            android:text="主菜单"
+            android:backgroundTint="#333355"
+            android:textColor="#CCCCCC"
+            android:fontFamily="monospace"/>
+    </LinearLayout>
+
+    <!-- 关卡完成覆盖层 -->
+    <LinearLayout
+        android:id="@+id/layout_level_complete"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:background="#CC002200"
+        android:visibility="gone">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="✓ 关卡完成！"
+            android:textColor="#44FF88"
+            android:textSize="28sp"
+            android:fontFamily="monospace"
+            android:layout_marginBottom="16dp"/>
+
+        <TextView
+            android:id="@+id/tv_level_complete_score"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#FFFFFF"
+            android:textSize="18sp"
+            android:fontFamily="monospace"
+            android:layout_marginBottom="32dp"/>
+
+        <Button
+            android:id="@+id/btn_next_level"
+            android:layout_width="180dp"
+            android:layout_height="48dp"
+            android:text="下一关"
+            android:backgroundTint="#008844"
+            android:textColor="#FFFFFF"
+            android:fontFamily="monospace"
+            android:layout_marginBottom="12dp"/>
+
+        <Button
+            android:id="@+id/btn_back_select"
+            android:layout_width="180dp"
+            android:layout_height="48dp"
+            android:text="关卡选择"
+            android:backgroundTint="#333355"
+            android:textColor="#CCCCCC"
+            android:fontFamily="monospace"/>
+    </LinearLayout>
+
+</FrameLayout>
