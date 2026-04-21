@@ -1,6 +1,7 @@
 package com.pixelshooter.game.engine
 
 import android.graphics.*
+import android.graphics.Color
 import com.pixelshooter.game.entities.*
 import com.pixelshooter.game.entities.enemies.*
 import com.pixelshooter.game.entities.bosses.*
@@ -39,6 +40,9 @@ class GameRenderer(private val config: GameConfig = GameConfig) {
     fun toLogicY(sy: Float) = sy / scaleY
 
     fun render(canvas: Canvas, engine: GameEngine, bgOffset: Float) {
+        // 清除整个画布（包括黑边区域）
+        canvas.drawColor(Color.BLACK)
+        
         canvas.save()
         canvas.translate(offsetX, 0f)
         canvas.scale(scaleX, scaleY)
@@ -49,6 +53,7 @@ class GameRenderer(private val config: GameConfig = GameConfig) {
         engine.boss?.let { drawBoss(canvas, it) }
         drawBullets(canvas, engine.bullets)
         drawPlayer(canvas, engine.player)
+        drawPlayerHpBar(canvas, engine.player)  // 绘制玩家血量条
 
         canvas.restore()
     }
@@ -265,30 +270,43 @@ class GameRenderer(private val config: GameConfig = GameConfig) {
     // ==================== 子弹 ====================
     private fun drawBullets(canvas: Canvas, bullets: List<Bullet>) {
         bullets.filter { it.isAlive }.forEach { bullet ->
-            paint.color = if (bullet.isPlayerBullet) {
+            val (coreColor, glowColor) = if (bullet.isPlayerBullet) {
                 when (bullet.type) {
-                    BulletType.PLAYER_SINGLE -> 0xFFFFFF00.toInt()
-                    BulletType.PLAYER_SPREAD -> 0xFFFFAA00.toInt()
+                    BulletType.PLAYER_SINGLE -> Pair(0xFFFFFF00.toInt(), 0x88FFFF00.toInt())
+                    BulletType.PLAYER_SPREAD -> Pair(0xFFFFAA00.toInt(), 0x88FFAA00.toInt())
                     BulletType.PLAYER_MISSILE,
-                    BulletType.PLAYER_MISSILE_STORM -> 0xFF00FFFF.toInt()
-                    BulletType.PLAYER_CHARGED -> 0xFFFFFFFF.toInt()
-                    BulletType.PLAYER_TORNADO -> 0xFFFF88FF.toInt()
-                    else -> 0xFFFFFF00.toInt()
+                    BulletType.PLAYER_MISSILE_STORM -> Pair(0xFF00FFFF.toInt(), 0x8800FFFF.toInt())
+                    BulletType.PLAYER_CHARGED -> Pair(0xFFFFFFFF.toInt(), 0x88FFFFFF.toInt())
+                    BulletType.PLAYER_TORNADO -> Pair(0xFFFF88FF.toInt(), 0x88FF88FF.toInt())
+                    else -> Pair(0xFFFFFF00.toInt(), 0x88FFFF00.toInt())
                 }
             } else {
                 when (bullet.type) {
-                    BulletType.ENEMY_ARC -> 0xFFFF4400.toInt()
-                    BulletType.ENEMY_RING -> 0xFFFF00FF.toInt()
-                    BulletType.ENEMY_TRACKING -> 0xFFFF8800.toInt()
-                    BulletType.ENEMY_BOUNCE -> 0xFF00FF88.toInt()
-                    else -> 0xFFFF2222.toInt()
+                    BulletType.ENEMY_ARC -> Pair(0xFFFF6600.toInt(), 0x88FF6600.toInt())
+                    BulletType.ENEMY_RING -> Pair(0xFFFF00FF.toInt(), 0x88FF00FF.toInt())
+                    BulletType.ENEMY_TRACKING -> Pair(0xFFFFAA00.toInt(), 0x88FFAA00.toInt())
+                    BulletType.ENEMY_BOUNCE -> Pair(0xFF00FF88.toInt(), 0x8800FF88.toInt())
+                    else -> Pair(0xFFFF4444.toInt(), 0x88FF4444.toInt())
                 }
             }
+            
             // 追踪导弹稍大
             val r = if (bullet.type == BulletType.PLAYER_MISSILE ||
                 bullet.type == BulletType.PLAYER_MISSILE_STORM ||
                 bullet.type == BulletType.PLAYER_CHARGED) 6f else 4f
+            
+            // 发光效果（外层）
+            paint.color = glowColor
+            paint.style = Paint.Style.FILL
+            canvas.drawCircle(bullet.x, bullet.y, r + 3f, paint)
+            
+            // 核心（内层）
+            paint.color = coreColor
             canvas.drawRect(bullet.x - r / 2, bullet.y - r, bullet.x + r / 2, bullet.y + r, paint)
+            
+            // 白色中心点（增强对比度）
+            paint.color = 0xFFFFFFFF.toInt()
+            canvas.drawCircle(bullet.x, bullet.y, r / 3f, paint)
         }
     }
 
@@ -320,5 +338,48 @@ class GameRenderer(private val config: GameConfig = GameConfig) {
         canvas.drawRect(left, top, left + barW, top + barH, paint)
         paint.color = 0xFF00FF44.toInt()
         canvas.drawRect(left, top, left + barW * (hp.toFloat() / maxHp), top + barH, paint)
+    }
+
+    // ==================== 玩家血量条（屏幕顶部）====================
+    private fun drawPlayerHpBar(canvas: Canvas, player: PlayerPlane) {
+        val barW = 120f
+        val barH = 10f
+        val bx = 10f
+        val by = 25f
+        
+        // 背景
+        paint.color = 0xFF333333.toInt()
+        paint.style = Paint.Style.FILL
+        canvas.drawRect(bx, by, bx + barW, by + barH, paint)
+        
+        // 血量
+        val pct = player.hp.toFloat() / player.maxHp
+        paint.color = when {
+            pct > 0.6f -> 0xFF00FF44.toInt()
+            pct > 0.3f -> 0xFFFFAA00.toInt()
+            else -> 0xFFFF2222.toInt()
+        }
+        canvas.drawRect(bx, by, bx + barW * pct, by + barH, paint)
+        
+        // 边框
+        paint.color = 0xFFFFFFFF.toInt()
+        paint.style = Paint.Style.STROKE
+        paint.strokeWidth = 2f
+        canvas.drawRect(bx, by, bx + barW, by + barH, paint)
+        paint.style = Paint.Style.FILL
+        
+        // 文字
+        textPaint.color = 0xFFFFFFFF.toInt()
+        textPaint.textSize = 10f
+        textPaint.textAlign = Paint.Align.LEFT
+        canvas.drawText("HP: ${player.hp}/${player.maxHp}", bx, by - 4f, textPaint)
+        
+        // 飞机图标
+        paint.color = when (player.planeType) {
+            PlaneType.FALCON -> 0xFF00FF88.toInt()
+            PlaneType.STORM  -> 0xFFFFAA00.toInt()
+            PlaneType.HUNTERII -> 0xFF00AAFF.toInt()
+        }
+        canvas.drawRect(bx + barW + 8f, by, bx + barW + 18f, by + barH, paint)
     }
 }

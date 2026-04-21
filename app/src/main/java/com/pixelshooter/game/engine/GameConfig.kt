@@ -17,7 +17,7 @@ object GameConfig {
 
     // 子弹
     const val BULLET_PLAYER_SPEED = 12f
-    const val BULLET_ENEMY_SPEED = 5f
+    const val BULLET_ENEMY_SPEED = 3.5f  // 降低敌机子弹速度
 
     // 道具
     const val ITEM_SPEED = 3f
