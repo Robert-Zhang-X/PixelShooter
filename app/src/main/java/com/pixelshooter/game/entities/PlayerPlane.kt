@@ -23,7 +23,7 @@ abstract class PlayerPlane(
     var powerUpTimeMs: Long = 0 // 强化子弹剩余时间
     var doubleShotTimeMs: Long = 0
 
-    var isInvincible: Boolean = false
+    override var isInvincible: Boolean = false
     var invincibleTimeMs: Long = 0
 
     private var lastFireTime: Long = 0
