@@ -24,26 +24,18 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
-      - name: Cache Gradle packages
-        uses: actions/cache@v4
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
         with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-          restore-keys: |
-            ${{ runner.os }}-gradle-
+          gradle-version: wrapper
 
-      - name: Make gradlew executable
-        run: chmod +x ./gradlew || true
+      - name: Generate Gradle Wrapper
+        run: |
+          gradle wrapper --gradle-version 8.4
+          chmod +x gradlew
 
       - name: Build Debug APK
-        run: |
-          if [ -f "./gradlew" ]; then
-            ./gradlew assembleDebug --stacktrace
-          else
-            gradle assembleDebug --stacktrace
-          fi
+        run: ./gradlew assembleDebug --stacktrace
 
       - name: Upload Debug APK
         uses: actions/upload-artifact@v4
@@ -72,26 +64,18 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
-      - name: Cache Gradle packages
-        uses: actions/cache@v4
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
         with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-          restore-keys: |
-            ${{ runner.os }}-gradle-
+          gradle-version: wrapper
 
-      - name: Make gradlew executable
-        run: chmod +x ./gradlew || true
+      - name: Generate Gradle Wrapper
+        run: |
+          gradle wrapper --gradle-version 8.4
+          chmod +x gradlew
 
       - name: Build Release APK
-        run: |
-          if [ -f "./gradlew" ]; then
-            ./gradlew assembleRelease --stacktrace
-          else
-            gradle assembleRelease --stacktrace
-          fi
+        run: ./gradlew assembleRelease --stacktrace
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
