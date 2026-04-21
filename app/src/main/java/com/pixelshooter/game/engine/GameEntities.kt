@@ -14,6 +14,7 @@ abstract class GameEntity(
     var isAlive: Boolean = true
     var hp: Int = 1
     var maxHp: Int = 1
+    var isInvincible: Boolean = false  // 无敌状态
 
     val bounds: RectF
         get() = RectF(x - width / 2, y - height / 2, x + width / 2, y + height / 2)
