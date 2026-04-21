@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.WindowManager
 import androidx.appcompat.app.AppCompatActivity
 import com.pixelshooter.data.SaveManager
+import com.pixelshooter.game.audio.AudioManager
 import com.pixelshooter.game.engine.GameConfig
 import com.pixelshooter.game.engine.GameState
 import com.pixelshooter.game.entities.PlaneType
@@ -34,6 +35,10 @@ class GameActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         window.addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN)
+
+        // 初始化音频管理器
+        AudioManager.initialize(this)
+        AudioManager.playBGM(this)
 
         levelId = intent.getIntExtra("level_id", 1)
         planeType = PlaneType.valueOf(intent.getStringExtra("plane_type") ?: PlaneType.FALCON.name)
@@ -153,10 +158,17 @@ class GameActivity : AppCompatActivity() {
     override fun onPause() {
         super.onPause()
         gameView.pauseGame()
+        AudioManager.pauseBGM()
     }
 
     override fun onResume() {
         super.onResume()
         gameView.resumeGame()
+        AudioManager.resumeBGM()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        AudioManager.release()
     }
 }

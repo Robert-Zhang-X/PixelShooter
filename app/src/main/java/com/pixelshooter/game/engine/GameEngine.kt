@@ -1,5 +1,7 @@
 package com.pixelshooter.game.engine
 
+import android.content.Context
+import com.pixelshooter.game.audio.AudioManager
 import com.pixelshooter.game.entities.*
 import com.pixelshooter.game.entities.enemies.EnemyPlane
 import com.pixelshooter.game.entities.enemies.SuicideEnemy
@@ -65,7 +67,10 @@ class GameEngine(
         // 玩家自动射击
         val now = System.currentTimeMillis()
         val newPlayerBullets = player.tryFire(now)
-        bullets.addAll(newPlayerBullets)
+        if (newPlayerBullets.isNotEmpty()) {
+            bullets.addAll(newPlayerBullets)
+            AudioManager.playSound(AudioManager.SoundType.SHOOT)
+        }
 
         // 部署敌机波次
         if (!allWavesDeployed && state == GameState.PLAYING) {
@@ -144,12 +149,16 @@ class GameEngine(
 
     // ==================== 子弹碰撞 ====================
     private fun detectBulletCollisions() {
-        val toRemove = mutableListOf<Bullet>()
-        bullets.forEach { bullet ->
-            if (!bullet.isAlive) return@forEach
+        // 使用迭代器安全遍历，避免 ConcurrentModificationException
+        val bulletIterator = bullets.iterator()
+        while (bulletIterator.hasNext()) {
+            val bullet = bulletIterator.next()
+            if (!bullet.isAlive) continue
+            
             if (bullet.isPlayerBullet) {
-                // 玩家子弹 vs 敌机
-                enemies.forEach { enemy ->
+                // 玩家子弹 vs 敌机 - 使用索引遍历避免并发修改
+                for (i in enemies.size - 1 downTo 0) {
+                    val enemy = enemies[i]
                     if (enemy.isAlive &&
                         CollisionSystem.isColliding(bullet.collisionBounds, enemy.collisionBounds)) {
                         if (enemy is ShieldEnemy && enemy.shieldLayers > 0) {
@@ -159,12 +168,17 @@ class GameEngine(
                             if (enemy.hp <= 0) {
                                 enemy.isAlive = false
                                 player.score += enemy.scoreValue
+                                AudioManager.playSound(AudioManager.SoundType.EXPLOSION)
                                 if (Random.nextFloat() < enemy.dropChance) dropItem(enemy.x, enemy.y)
                             }
                         }
-                        if (!bullet.isPenetrating) bullet.isAlive = false
+                        if (!bullet.isPenetrating) {
+                            bullet.isAlive = false
+                            break
+                        }
                     }
                 }
+                
                 // 玩家子弹 vs Boss
                 boss?.let { b ->
                     if (b.isAlive && !b.isInvincible &&
@@ -178,13 +192,18 @@ class GameEngine(
                         if (!bullet.isPenetrating) bullet.isAlive = false
                     }
                 }
-                // 玩家子弹 vs Boss分身
-                bossClones.forEach { clone ->
+                
+                // 玩家子弹 vs Boss分身 - 使用索引遍历
+                for (i in bossClones.size - 1 downTo 0) {
+                    val clone = bossClones[i]
                     if (clone.isAlive &&
                         CollisionSystem.isColliding(bullet.collisionBounds, clone.collisionBounds)) {
                         clone.hp -= bullet.damage
                         if (clone.hp <= 0) clone.isAlive = false
-                        if (!bullet.isPenetrating) bullet.isAlive = false
+                        if (!bullet.isPenetrating) {
+                            bullet.isAlive = false
+                            break
+                        }
                     }
                 }
             } else {
@@ -192,6 +211,7 @@ class GameEngine(
                 if (CollisionSystem.isColliding(bullet.collisionBounds, player.collisionBounds)) {
                     player.takeDamage(bullet.damage)
                     bullet.isAlive = false
+                    AudioManager.playSound(AudioManager.SoundType.PLAYER_HIT)
                     onHpUpdate(player.hp, player.maxHp)
                 }
             }
@@ -214,6 +234,7 @@ class GameEngine(
 
     // ==================== 生成Boss ====================
     private fun spawnBoss() {
+        AudioManager.playSound(AudioManager.SoundType.BOSS_APPEAR)
         val cx = GameConfig.LOGICAL_WIDTH / 2
         boss = when (levelId) {
             1 -> Boss1IronWing(cx)
@@ -229,6 +250,7 @@ class GameEngine(
     // ==================== 炸弹技能 ====================
     fun useBomb() {
         if (player.bombs <= 0) return
+        AudioManager.playSound(AudioManager.SoundType.BOMB)
         player.bombs--
         // 清除所有敌机子弹，对所有敌机造成200伤害
         bullets.removeAll { !it.isPlayerBullet }
