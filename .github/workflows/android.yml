@@ -32,8 +32,14 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-gradle-
 
+      - name: Check Gradle version
+        run: |
+          which gradle
+          gradle --version
+          ls -la
+
       - name: Build Debug APK
-        run: gradle assembleDebug --stacktrace
+        run: gradle assembleDebug --stacktrace --info
 
       - name: Upload Debug APK
         uses: actions/upload-artifact@v4
