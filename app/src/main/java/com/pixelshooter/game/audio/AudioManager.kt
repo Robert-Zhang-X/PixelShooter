@@ -8,6 +8,8 @@ import com.pixelshooter.game.R
 
 /**
  * 音频管理器 - 管理背景音乐和音效
+ * 
+ * 注意：需要导入 com.pixelshooter.game.R 以访问资源
  */
 object AudioManager {
     
