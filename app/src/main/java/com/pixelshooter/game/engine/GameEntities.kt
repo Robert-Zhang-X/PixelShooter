@@ -94,7 +94,7 @@ enum class ItemType {
 class Item(
     x: Float, y: Float,
     val itemType: ItemType
-) : GameEntity(x, y, 24f, 24f) {
+) : GameEntity(x, y, 36f, 36f) {  // 道具碰撞区域增大（原24x24 → 36x36），更易拾取
 
     override fun update(deltaMs: Long) {
         y += GameConfig.ITEM_SPEED

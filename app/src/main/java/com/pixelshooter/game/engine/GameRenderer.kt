@@ -310,22 +310,145 @@ class GameRenderer(private val config: GameConfig = GameConfig) {
         }
     }
 
-    // ==================== 道具 ====================
+    // ==================== 道具（增大尺寸 + 图标化绘制）====================
     private fun drawItems(canvas: Canvas, items: List<Item>) {
         items.filter { it.isAlive }.forEach { item ->
-            val (color, label) = when (item.itemType) {
-                ItemType.HEALTH_SMALL -> Pair(0xFFFF4444.toInt(), "+")
-                ItemType.HEALTH_LARGE -> Pair(0xFFFF0000.toInt(), "++")
-                ItemType.BOMB         -> Pair(0xFFFF8800.toInt(), "B")
-                ItemType.SHIELD       -> Pair(0xFF0088FF.toInt(), "S")
-                ItemType.POWER_UP     -> Pair(0xFFFFFF00.toInt(), "P")
-                ItemType.DOUBLE_SHOT  -> Pair(0xFFAA00FF.toInt(), "x2")
+            val r = 18f  // 增大道具尺寸（原来12f）
+            val x = item.x; val y = item.y
+
+            when (item.itemType) {
+                ItemType.HEALTH_SMALL -> {
+                    // 红色圆角背景 + 十字
+                    paint.color = 0xFFCC2222.toInt()
+                    paint.style = Paint.Style.FILL
+                    canvas.drawRoundRect(x - r, y - r, x + r, y + r, 5f, 5f, paint)
+                    paint.color = 0xFFFF6666.toInt()
+                    canvas.drawRoundRect(x - r + 1f, y - r + 1f, x + r - 1f, y - r + 4f, 2f, 2f, paint)
+                    paint.color = 0xFFFFFFFF.toInt()
+                    canvas.drawRect(x - r * 0.55f, y - 4f, x + r * 0.55f, y + 4f, paint)
+                    canvas.drawRect(x - 4f, y - r * 0.55f, x + 4f, y + r * 0.55f, paint)
+                    // 外发光
+                    paint.color = 0x44FF4444.toInt()
+                    paint.style = Paint.Style.STROKE
+                    paint.strokeWidth = 3f
+                    canvas.drawRoundRect(x - r - 2f, y - r - 2f, x + r + 2f, y + r + 2f, 7f, 7f, paint)
+                    paint.style = Paint.Style.FILL
+                }
+                ItemType.HEALTH_LARGE -> {
+                    // 深红心形背景
+                    paint.color = 0xFFAA0000.toInt()
+                    canvas.drawRoundRect(x - r, y - r, x + r, y + r, 5f, 5f, paint)
+                    paint.color = 0xFFFF2244.toInt()
+                    // 心形简化：两圆 + 三角
+                    canvas.drawCircle(x - 5f, y - 4f, 6f, paint)
+                    canvas.drawCircle(x + 5f, y - 4f, 6f, paint)
+                    val heartPath = Path().apply {
+                        moveTo(x - 11f, y - 2f)
+                        lineTo(x, y + 10f)
+                        lineTo(x + 11f, y - 2f)
+                        close()
+                    }
+                    canvas.drawPath(heartPath, paint)
+                    paint.color = 0x44FF2244.toInt()
+                    paint.style = Paint.Style.STROKE
+                    paint.strokeWidth = 3f
+                    canvas.drawRoundRect(x - r - 2f, y - r - 2f, x + r + 2f, y + r + 2f, 7f, 7f, paint)
+                    paint.style = Paint.Style.FILL
+                }
+                ItemType.BOMB -> {
+                    // 橙色背景 + 炸弹图标
+                    paint.color = 0xFFCC4400.toInt()
+                    canvas.drawRoundRect(x - r, y - r, x + r, y + r, 5f, 5f, paint)
+                    paint.color = 0xFF222222.toInt()
+                    canvas.drawCircle(x, y + 3f, 10f, paint)
+                    // 导线
+                    paint.color = 0xFF888888.toInt()
+                    paint.style = Paint.Style.STROKE
+                    paint.strokeWidth = 2f
+                    canvas.drawLine(x, y - 7f, x + 4f, y - 13f, paint)
+                    paint.style = Paint.Style.FILL
+                    // 火花
+                    paint.color = 0xFFFFAA00.toInt()
+                    canvas.drawCircle(x + 5f, y - 14f, 3f, paint)
+                    // 光效
+                    paint.color = 0x44FF8800.toInt()
+                    paint.style = Paint.Style.STROKE
+                    paint.strokeWidth = 3f
+                    canvas.drawRoundRect(x - r - 2f, y - r - 2f, x + r + 2f, y + r + 2f, 7f, 7f, paint)
+                    paint.style = Paint.Style.FILL
+                }
+                ItemType.SHIELD -> {
+                    // 蓝色背景 + 盾形
+                    paint.color = 0xFF004488.toInt()
+                    canvas.drawRoundRect(x - r, y - r, x + r, y + r, 5f, 5f, paint)
+                    paint.color = 0xFF2288FF.toInt()
+                    val shieldPath = Path().apply {
+                        moveTo(x, y - r * 0.8f)
+                        lineTo(x + r * 0.7f, y - r * 0.4f)
+                        lineTo(x + r * 0.7f, y + r * 0.1f)
+                        quadTo(x + r * 0.7f, y + r * 0.8f, x, y + r * 0.9f)
+                        quadTo(x - r * 0.7f, y + r * 0.8f, x - r * 0.7f, y + r * 0.1f)
+                        lineTo(x - r * 0.7f, y - r * 0.4f)
+                        close()
+                    }
+                    canvas.drawPath(shieldPath, paint)
+                    paint.color = 0xFFAADDFF.toInt()
+                    textPaint.color = 0xFFFFFFFF.toInt()
+                    textPaint.textSize = 10f
+                    textPaint.textAlign = Paint.Align.CENTER
+                    canvas.drawText("S", x, y + 4f, textPaint)
+                    paint.color = 0x440088FF.toInt()
+                    paint.style = Paint.Style.STROKE
+                    paint.strokeWidth = 3f
+                    canvas.drawRoundRect(x - r - 2f, y - r - 2f, x + r + 2f, y + r + 2f, 7f, 7f, paint)
+                    paint.style = Paint.Style.FILL
+                }
+                ItemType.POWER_UP -> {
+                    // 黄色背景 + 闪电
+                    paint.color = 0xFF886600.toInt()
+                    canvas.drawRoundRect(x - r, y - r, x + r, y + r, 5f, 5f, paint)
+                    paint.color = 0xFFFFDD00.toInt()
+                    val boltPath = Path().apply {
+                        moveTo(x + 4f, y - r * 0.8f)
+                        lineTo(x - 3f, y + 1f)
+                        lineTo(x + 2f, y + 1f)
+                        lineTo(x - 4f, y + r * 0.8f)
+                        lineTo(x + 5f, y - 1f)
+                        lineTo(x, y - 1f)
+                        close()
+                    }
+                    canvas.drawPath(boltPath, paint)
+                    paint.color = 0x44FFDD00.toInt()
+                    paint.style = Paint.Style.STROKE
+                    paint.strokeWidth = 3f
+                    canvas.drawRoundRect(x - r - 2f, y - r - 2f, x + r + 2f, y + r + 2f, 7f, 7f, paint)
+                    paint.style = Paint.Style.FILL
+                }
+                ItemType.DOUBLE_SHOT -> {
+                    // 紫色背景 + 双箭头
+                    paint.color = 0xFF550088.toInt()
+                    canvas.drawRoundRect(x - r, y - r, x + r, y + r, 5f, 5f, paint)
+                    paint.color = 0xFFDD44FF.toInt()
+                    // 左子弹
+                    canvas.drawRect(x - 8f, y - r * 0.7f, x - 4f, y + r * 0.5f, paint)
+                    val tip1 = Path().apply { moveTo(x - 8f, y - r * 0.7f); lineTo(x - 6f, y - r * 0.95f); lineTo(x - 4f, y - r * 0.7f); close() }
+                    canvas.drawPath(tip1, paint)
+                    // 右子弹
+                    canvas.drawRect(x + 4f, y - r * 0.7f, x + 8f, y + r * 0.5f, paint)
+                    val tip2 = Path().apply { moveTo(x + 4f, y - r * 0.7f); lineTo(x + 6f, y - r * 0.95f); lineTo(x + 8f, y - r * 0.7f); close() }
+                    canvas.drawPath(tip2, paint)
+                    // x2标签
+                    textPaint.textSize = 8f
+                    textPaint.color = 0xFFFFFFFF.toInt()
+                    textPaint.textAlign = Paint.Align.CENTER
+                    canvas.drawText("x2", x, y + r * 0.75f, textPaint)
+                    paint.color = 0x44AA00FF.toInt()
+                    paint.style = Paint.Style.STROKE
+                    paint.strokeWidth = 3f
+                    canvas.drawRoundRect(x - r - 2f, y - r - 2f, x + r + 2f, y + r + 2f, 7f, 7f, paint)
+                    paint.style = Paint.Style.FILL
+                }
             }
-            paint.color = color
-            canvas.drawRect(item.x - 12f, item.y - 12f, item.x + 12f, item.y + 12f, paint)
-            textPaint.color = 0xFFFFFFFF.toInt()
-            textPaint.textSize = 10f
-            canvas.drawText(label, item.x, item.y + 4f, textPaint)
         }
     }
 

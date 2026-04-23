@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 第1关：蓝天边境 - 太阳+云 -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="48dp" android:height="48dp"
+    android:viewportWidth="48" android:viewportHeight="48">
+    <!-- 天空背景 -->
+    <path android:pathData="M0,0 L48,0 L48,48 L0,48 Z" android:fillColor="#1565C0"/>
+    <!-- 太阳 -->
+    <path android:pathData="M24,12 m-7,0 a7,7 0 1,0 14,0 a7,7 0 1,0 -14,0" android:fillColor="#FFD740"/>
+    <!-- 太阳光芒 -->
+    <path android:pathData="M24,2 L24,5 M24,19 L24,22 M14,12 L11,12 M34,12 L37,12 M17,5 L19,7 M29,17 L31,19 M17,19 L19,17 M29,7 L31,5"
+        android:strokeColor="#FFD740" android:strokeWidth="2" android:fillColor="#00000000"/>
+    <!-- 云朵 -->
+    <path android:pathData="M10,30 a5,5 0 0,1 10,0 a4,4 0 0,1 8,0 a5,5 0 0,1 10,0 L38,36 L10,36 Z"
+        android:fillColor="#ECEFF1"/>
+    <!-- 飞机剪影 -->
+    <path android:pathData="M24,40 L26,43 L24,42 L22,43 Z" android:fillColor="#B0BEC5"/>
+    <path android:pathData="M20,41 L24,40 L28,41 L28,42 L24,41.5 L20,42 Z" android:fillColor="#CFD8DC"/>
+</vector>

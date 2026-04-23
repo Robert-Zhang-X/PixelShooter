@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 第4关：雷暴之城 - 闪电+城市 -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="48dp" android:height="48dp"
+    android:viewportWidth="48" android:viewportHeight="48">
+    <!-- 背景 -->
+    <path android:pathData="M0,0 L48,0 L48,48 L0,48 Z" android:fillColor="#1A237E"/>
+    <!-- 城市轮廓 -->
+    <path android:pathData="M0,38 L4,38 L4,30 L8,30 L8,26 L12,26 L12,30 L16,30 L16,34 L20,34 L20,28 L24,28 L24,32 L28,32 L28,24 L32,24 L32,30 L36,30 L36,28 L40,28 L40,34 L44,34 L44,38 L48,38 L48,48 L0,48 Z"
+        android:fillColor="#263238"/>
+    <!-- 窗户灯光 -->
+    <path android:pathData="M9,27 L11,27 L11,29 L9,29 Z" android:fillColor="#FFD740" android:fillAlpha="0.8"/>
+    <path android:pathData="M21,29 L23,29 L23,31 L21,31 Z" android:fillColor="#40C4FF" android:fillAlpha="0.8"/>
+    <path android:pathData="M29,25 L31,25 L31,27 L29,27 Z" android:fillColor="#FFD740" android:fillAlpha="0.8"/>
+    <path android:pathData="M37,29 L39,29 L39,31 L37,31 Z" android:fillColor="#40C4FF" android:fillAlpha="0.8"/>
+    <!-- 云朵 -->
+    <path android:pathData="M8,12 a5,5 0 0,1 10,0 a4,4 0 0,1 6,0 a5,5 0 0,1 10,0 a4,4 0 0,1 6,0 L40,18 L8,18 Z"
+        android:fillColor="#546E7A"/>
+    <!-- 闪电主体 -->
+    <path android:pathData="M26,18 L20,28 L24,28 L18,40 L30,26 L25,26 L30,18 Z"
+        android:fillColor="#FFD740"/>
+    <!-- 闪电光晕 -->
+    <path android:pathData="M26,18 L20,28 L24,28 L18,40 L30,26 L25,26 L30,18 Z"
+        android:fillColor="#FFFF00" android:fillAlpha="0.4"/>
+</vector>

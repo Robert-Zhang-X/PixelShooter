@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 风暴号 - 橙色宽翼散射飞机 -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="60dp" android:height="60dp"
+    android:viewportWidth="60" android:viewportHeight="60">
+    <!-- 背景光晕 -->
+    <path android:pathData="M30,30 m-22,0 a22,22 0 1,0 44,0 a22,22 0 1,0 -44,0"
+        android:fillColor="#FFAA00" android:fillAlpha="0.15"/>
+    <!-- 机身 -->
+    <path android:pathData="M30,10 L33,22 L32,42 L30,46 L28,42 L27,22 Z"
+        android:fillColor="#FF9800"/>
+    <!-- 大机翼左 -->
+    <path android:pathData="M27,18 L4,30 L8,33 L27,26 Z"
+        android:fillColor="#E65100"/>
+    <!-- 大机翼右 -->
+    <path android:pathData="M33,18 L56,30 L52,33 L33,26 Z"
+        android:fillColor="#E65100"/>
+    <!-- 中机翼左 -->
+    <path android:pathData="M27,26 L12,38 L15,40 L27,32 Z"
+        android:fillColor="#FF6D00"/>
+    <!-- 中机翼右 -->
+    <path android:pathData="M33,26 L48,38 L45,40 L33,32 Z"
+        android:fillColor="#FF6D00"/>
+    <!-- 驾驶舱 -->
+    <path android:pathData="M28,16 L32,16 L33,26 L30,28 L27,26 Z"
+        android:fillColor="#BF360C"/>
+    <!-- 发光窗 -->
+    <path android:pathData="M29,18 L31,18 L31.5,25 L30,26 L28.5,25 Z"
+        android:fillColor="#FFE0B2" android:fillAlpha="0.9"/>
+    <!-- 双引擎火焰 -->
+    <path android:pathData="M27,44 L28,52 L29,44"
+        android:fillColor="#FF3D00" android:fillAlpha="0.9"/>
+    <path android:pathData="M31,44 L32,52 L33,44"
+        android:fillColor="#FF3D00" android:fillAlpha="0.9"/>
+    <path android:pathData="M27.5,44 L28,50 L28.5,44"
+        android:fillColor="#FFAB40"/>
+    <path android:pathData="M31.5,44 L32,50 L32.5,44"
+        android:fillColor="#FFAB40"/>
+    <!-- 旋风标志 -->
+    <path android:pathData="M26,22 Q30,20 34,22 Q32,24 30,22 Q28,20 26,22"
+        android:strokeColor="#FFEB3B" android:strokeWidth="1" android:fillColor="#00000000" android:fillAlpha="0"/>
+</vector>

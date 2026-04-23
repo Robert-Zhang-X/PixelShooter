@@ -6,39 +6,58 @@
     android:background="#0D0D2B"
     android:gravity="center">
 
+    <!-- 游戏标题 -->
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="⚡ PIXEL SHOOTER ⚡"
         android:textColor="#FFD700"
         android:textSize="28sp"
+        android:textStyle="bold"
         android:fontFamily="monospace"
-        android:layout_marginBottom="16dp"/>
+        android:letterSpacing="0.05"
+        android:layout_marginBottom="6dp"
+        android:shadowColor="#FF8800"
+        android:shadowRadius="8"
+        android:shadowDx="0"
+        android:shadowDy="0"/>
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="像素飞机大战"
-        android:textColor="#AAAAFF"
-        android:textSize="16sp"
+        android:textColor="#8888FF"
+        android:textSize="15sp"
         android:fontFamily="monospace"
-        android:layout_marginBottom="60dp"/>
+        android:letterSpacing="0.15"
+        android:layout_marginBottom="16dp"/>
 
+    <!-- 分隔线 -->
+    <View
+        android:layout_width="200dp"
+        android:layout_height="1dp"
+        android:background="#33446688"
+        android:layout_marginBottom="48dp"/>
+
+    <!-- 开始按钮 -->
     <Button
         android:id="@+id/btn_start"
-        android:layout_width="200dp"
+        android:layout_width="220dp"
         android:layout_height="56dp"
-        android:text="开始游戏"
+        android:text="▶ 开始游戏"
         android:textSize="18sp"
-        android:backgroundTint="#4400CCFF"
+        android:textStyle="bold"
+        android:backgroundTint="#0055AA"
         android:textColor="#FFFFFF"
-        android:fontFamily="monospace"/>
+        android:fontFamily="monospace"
+        android:layout_marginBottom="16dp"/>
 
+    <!-- 版本号 -->
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="v1.0.0"
-        android:textColor="#555577"
+        android:text="v1.1.0"
+        android:textColor="#444466"
         android:textSize="11sp"
         android:layout_marginTop="40dp"
         android:fontFamily="monospace"/>

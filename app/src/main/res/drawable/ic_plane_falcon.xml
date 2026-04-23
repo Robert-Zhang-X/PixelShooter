@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 猎鹰号 - 绿色单发高速飞机 -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="60dp" android:height="60dp"
+    android:viewportWidth="60" android:viewportHeight="60">
+    <!-- 背景光晕 -->
+    <path android:pathData="M30,30 m-22,0 a22,22 0 1,0 44,0 a22,22 0 1,0 -44,0"
+        android:fillColor="#00FF88" android:fillAlpha="0.12"/>
+    <!-- 机身 -->
+    <path android:pathData="M30,8 L34,20 L32,44 L30,48 L28,44 L26,20 Z"
+        android:fillColor="#00E676"/>
+    <!-- 机翼左 -->
+    <path android:pathData="M26,20 L10,34 L14,36 L26,28 Z"
+        android:fillColor="#00C853"/>
+    <!-- 机翼右 -->
+    <path android:pathData="M34,20 L50,34 L46,36 L34,28 Z"
+        android:fillColor="#00C853"/>
+    <!-- 小翼左 -->
+    <path android:pathData="M28,40 L20,46 L22,47 L28,43 Z"
+        android:fillColor="#69F0AE"/>
+    <!-- 小翼右 -->
+    <path android:pathData="M32,40 L40,46 L38,47 L32,43 Z"
+        android:fillColor="#69F0AE"/>
+    <!-- 驾驶舱 -->
+    <path android:pathData="M28,16 L32,16 L32,26 L30,28 L28,26 Z"
+        android:fillColor="#1B5E20"/>
+    <!-- 发光窗 -->
+    <path android:pathData="M29,18 L31,18 L31,24 L30,25 L29,24 Z"
+        android:fillColor="#B9F6CA" android:fillAlpha="0.9"/>
+    <!-- 引擎火焰 -->
+    <path android:pathData="M28,46 L30,54 L32,46"
+        android:fillColor="#FF6D00" android:fillAlpha="0.9"/>
+    <path android:pathData="M29,46 L30,52 L31,46"
+        android:fillColor="#FFAB40"/>
+    <!-- 穿透光效 -->
+    <path android:pathData="M30,4 L30.5,8 L30,12 L29.5,8 Z"
+        android:fillColor="#FFFFFF" android:fillAlpha="0.7"/>
+</vector>

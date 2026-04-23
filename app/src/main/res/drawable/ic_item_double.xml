@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 道具：双倍弹药 -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="32dp" android:height="32dp"
+    android:viewportWidth="32" android:viewportHeight="32">
+    <path android:pathData="M0,0 L32,0 L32,32 L0,32 Z" android:fillColor="#6A1B9A" android:fillAlpha="0.9"/>
+    <!-- 子弹1 -->
+    <path android:pathData="M11,6 L14,6 L14,22 L12.5,24 L11,22 Z" android:fillColor="#CE93D8"/>
+    <path android:pathData="M11,6 L14,6 L12.5,4 Z" android:fillColor="#FFEE58"/>
+    <!-- 子弹2 -->
+    <path android:pathData="M18,6 L21,6 L21,22 L19.5,24 L18,22 Z" android:fillColor="#BA68C8"/>
+    <path android:pathData="M18,6 L21,6 L19.5,4 Z" android:fillColor="#FFEE58"/>
+    <!-- x2 标签 -->
+    <path android:pathData="M7,26 L9,29 M9,26 L7,29 M11,26 L11,29 M11,27 L13,27 M11,29 L13,29 M13,27 L13,29"
+        android:strokeColor="#FFFFFF" android:strokeWidth="1.5" android:fillColor="#00000000"/>
+    <!-- 光效连线 -->
+    <path android:pathData="M12.5,8 L19.5,8" android:strokeColor="#E040FB" android:strokeWidth="1" android:fillColor="#00000000"/>
+</vector>

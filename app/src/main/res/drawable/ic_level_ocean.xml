@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 第3关：深海上空 - 海浪+飞机 -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="48dp" android:height="48dp"
+    android:viewportWidth="48" android:viewportHeight="48">
+    <!-- 背景：深海蓝 -->
+    <path android:pathData="M0,0 L48,0 L48,48 L0,48 Z" android:fillColor="#01579B"/>
+    <!-- 海面渐变效果（深色下层） -->
+    <path android:pathData="M0,28 L48,28 L48,48 L0,48 Z" android:fillColor="#0D47A1"/>
+    <!-- 海浪 -->
+    <path android:pathData="M0,30 Q6,26 12,30 Q18,34 24,30 Q30,26 36,30 Q42,34 48,30 L48,36 L0,36 Z"
+        android:fillColor="#1565C0"/>
+    <path android:pathData="M0,34 Q6,30 12,34 Q18,38 24,34 Q30,30 36,34 Q42,38 48,34 L48,48 L0,48 Z"
+        android:fillColor="#0D47A1"/>
+    <!-- 气泡 -->
+    <path android:pathData="M8,24 a2,2 0 1,0 0.01,0" android:fillColor="#4FC3F7" android:fillAlpha="0.7"/>
+    <path android:pathData="M38,20 a1.5,1.5 0 1,0 0.01,0" android:fillColor="#81D4FA" android:fillAlpha="0.7"/>
+    <path android:pathData="M18,16 a1,1 0 1,0 0.01,0" android:fillColor="#B3E5FC" android:fillAlpha="0.6"/>
+    <!-- 飞机从上方 -->
+    <path android:pathData="M24,6 L26,12 L24,11 L22,12 Z" android:fillColor="#00BCD4"/>
+    <path android:pathData="M18,9 L24,6 L30,9 L30,10 L24,8 L18,10 Z" android:fillColor="#26C6DA"/>
+    <!-- 鱼雷 -->
+    <path android:pathData="M14,18 L20,20 L14,22 Z" android:fillColor="#FF8A65"/>
+    <path android:pathData="M28,15 L34,17 L28,19 Z" android:fillColor="#FF8A65"/>
+</vector>

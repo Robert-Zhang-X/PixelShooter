@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 道具：小血包 -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="32dp" android:height="32dp"
+    android:viewportWidth="32" android:viewportHeight="32">
+    <path android:pathData="M0,0 L32,0 L32,32 L0,32 Z" android:fillColor="#C62828" android:fillAlpha="0.85"/>
+    <!-- 十字 -->
+    <path android:pathData="M13,6 L19,6 L19,13 L26,13 L26,19 L19,19 L19,26 L13,26 L13,19 L6,19 L6,13 L13,13 Z"
+        android:fillColor="#FFFFFF"/>
+    <!-- 高光 -->
+    <path android:pathData="M13,6 L19,6 L19,8 L13,8 Z" android:fillColor="#FFCDD2" android:fillAlpha="0.6"/>
+</vector>

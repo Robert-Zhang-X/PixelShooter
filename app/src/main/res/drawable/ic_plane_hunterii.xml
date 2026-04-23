@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 猎鹰II号 - 蓝色导弹追踪飞机 -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="60dp" android:height="60dp"
+    android:viewportWidth="60" android:viewportHeight="60">
+    <!-- 背景光晕 -->
+    <path android:pathData="M30,30 m-22,0 a22,22 0 1,0 44,0 a22,22 0 1,0 -44,0"
+        android:fillColor="#00AAFF" android:fillAlpha="0.15"/>
+    <!-- 机身 -->
+    <path android:pathData="M30,8 L33,20 L33,42 L30,46 L27,42 L27,20 Z"
+        android:fillColor="#2196F3"/>
+    <!-- 机翼左 -->
+    <path android:pathData="M27,22 L8,28 L11,32 L27,28 Z"
+        android:fillColor="#1565C0"/>
+    <!-- 机翼右 -->
+    <path android:pathData="M33,22 L52,28 L49,32 L33,28 Z"
+        android:fillColor="#1565C0"/>
+    <!-- 小翼 -->
+    <path android:pathData="M27,36 L18,42 L20,43 L27,39 Z"
+        android:fillColor="#42A5F5"/>
+    <path android:pathData="M33,36 L42,42 L40,43 L33,39 Z"
+        android:fillColor="#42A5F5"/>
+    <!-- 驾驶舱 -->
+    <path android:pathData="M28,14 L32,14 L32,26 L30,28 L28,26 Z"
+        android:fillColor="#0D47A1"/>
+    <!-- 玻璃窗 -->
+    <path android:pathData="M28.5,15 L31.5,15 L31.5,25 L30,27 L28.5,25 Z"
+        android:fillColor="#B3E5FC" android:fillAlpha="0.9"/>
+    <!-- 导弹挂载（左） -->
+    <path android:pathData="M18,30 L22,28 L22,32 L18,30" android:fillColor="#78909C"/>
+    <path android:pathData="M18,30 L16,29 L16,31 Z" android:fillColor="#FF7043"/>
+    <!-- 导弹挂载（右） -->
+    <path android:pathData="M42,30 L38,28 L38,32 L42,30" android:fillColor="#78909C"/>
+    <path android:pathData="M42,30 L44,29 L44,31 Z" android:fillColor="#FF7043"/>
+    <!-- 引擎火焰 -->
+    <path android:pathData="M28,44 L29.5,54 L31,44"
+        android:fillColor="#00B0FF" android:fillAlpha="0.9"/>
+    <path android:pathData="M28.5,44 L30,52 L31.5,44"
+        android:fillColor="#40C4FF"/>
+    <!-- 追踪光效虚线 -->
+    <path android:pathData="M24,20 L18,14 M36,20 L42,14"
+        android:strokeColor="#80DEEA" android:strokeWidth="1" android:fillColor="#00000000"
+        android:strokeDashArray="2,2"/>
+</vector>
