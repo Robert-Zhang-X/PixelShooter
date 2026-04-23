@@ -37,8 +37,9 @@
         android:fillColor="#00B0FF" android:fillAlpha="0.9"/>
     <path android:pathData="M28.5,44 L30,52 L31.5,44"
         android:fillColor="#40C4FF"/>
-    <!-- 追踪光效虚线 -->
-    <path android:pathData="M24,20 L18,14 M36,20 L42,14"
-        android:strokeColor="#80DEEA" android:strokeWidth="1" android:fillColor="#00000000"
-        android:strokeDashArray="2,2"/>
+    <!-- 追踪光效（改为实线，兼容低版本API） -->
+    <path android:pathData="M24,20 L18,14"
+        android:strokeColor="#80DEEA" android:strokeWidth="1" android:fillColor="#00000000"/>
+    <path android:pathData="M36,20 L42,14"
+        android:strokeColor="#80DEEA" android:strokeWidth="1" android:fillColor="#00000000"/>
 </vector>
