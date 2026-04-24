@@ -351,71 +351,692 @@ class GameRenderer(private val config: GameConfig = GameConfig) {
         return Color.rgb(r, g, b)
     }
 
-    // ==================== 敌机 ====================
+    // ==================== 敌机绘制（分类型精细绘制）====================
+
     private fun drawEnemies(canvas: Canvas, enemies: List<EnemyPlane>) {
         enemies.filter { it.isAlive }.forEach { enemy ->
-            val color = when (enemy) {
-                is BasicEnemy -> 0xFFFF4444.toInt()
-                is ScoutEnemy -> 0xFFFFAA44.toInt()
-                is FireEnemy  -> 0xFFFF2200.toInt()
-                is SuicideEnemy -> 0xFFFF0000.toInt()
-                is BomberEnemy -> 0xFF884400.toInt()
-                is TorpedoEnemy -> 0xFF0088FF.toInt()
-                is FormationEnemy -> 0xFF44AAFF.toInt()
-                is JammerEnemy -> 0xFF44FF44.toInt()
-                is ShieldEnemy -> 0xFF8844FF.toInt()
-                is SpaceEnemy -> 0xFFAA00FF.toInt()
-                is StealthEnemy -> if ((enemy as StealthEnemy).isStealthed) 0x44FFFFFF else 0xFF00FFFF.toInt()
-                else -> 0xFFFF4444.toInt()
+            when (enemy) {
+                is BasicEnemy     -> drawBasicEnemy(canvas, enemy)
+                is ScoutEnemy     -> drawScoutEnemy(canvas, enemy)
+                is FireEnemy      -> drawFireEnemy(canvas, enemy)
+                is SuicideEnemy   -> drawSuicideEnemy(canvas, enemy)
+                is BomberEnemy    -> drawBomberEnemy(canvas, enemy)
+                is TorpedoEnemy   -> drawTorpedoEnemy(canvas, enemy)
+                is FormationEnemy -> drawFormationEnemy(canvas, enemy)
+                is JammerEnemy    -> drawJammerEnemy(canvas, enemy)
+                is ShieldEnemy    -> drawShieldEnemy(canvas, enemy)
+                is SpaceEnemy     -> drawSpaceEnemy(canvas, enemy)
+                is StealthEnemy   -> drawStealthEnemy(canvas, enemy)
+                else              -> drawGenericEnemy(canvas, enemy)
             }
-            drawPixelPlane(canvas, enemy.x, enemy.y, enemy.width, enemy.height, color, isPlayer = false)
-
-            // 护盾战机的护盾圆圈
-            if (enemy is ShieldEnemy && enemy.shieldLayers > 0) {
-                paint.color = if (enemy.shieldLayers == 2) 0x888844FF.toInt() else 0x448844FF.toInt()
-                paint.style = Paint.Style.STROKE
-                paint.strokeWidth = 3f
-                canvas.drawCircle(enemy.x, enemy.y, enemy.width * 0.7f, paint)
-                paint.style = Paint.Style.FILL
-            }
-
             // 血量条（非满血时显示）
             if (enemy.hp < enemy.maxHp) drawHpBar(canvas, enemy.x, enemy.y - enemy.height / 2 - 6f,
                 enemy.width, enemy.hp, enemy.maxHp)
         }
     }
 
-    // ==================== Boss ====================
+    // ---- 基础敌机：倒三角+下视机翼+驾驶舱 ----
+    private fun drawBasicEnemy(canvas: Canvas, e: BasicEnemy) {
+        paint.style = Paint.Style.FILL
+        val x = e.x; val y = e.y; val w = e.width; val h = e.height
+        // 机身（倒三角锥形）
+        paint.color = 0xFFCC2222.toInt()
+        val body = Path().apply {
+            moveTo(x, y + h * 0.48f)
+            lineTo(x + w * 0.25f, y - h * 0.3f)
+            lineTo(x - w * 0.25f, y - h * 0.3f)
+            close()
+        }
+        canvas.drawPath(body, paint)
+        // 机翼（向下展开）
+        paint.color = 0xFFAA1111.toInt()
+        val wingL = Path().apply {
+            moveTo(x - w * 0.25f, y + h * 0.1f)
+            lineTo(x - w * 0.52f, y + h * 0.45f)
+            lineTo(x - w * 0.18f, y + h * 0.38f)
+            close()
+        }
+        canvas.drawPath(wingL, paint)
+        val wingR = Path().apply {
+            moveTo(x + w * 0.25f, y + h * 0.1f)
+            lineTo(x + w * 0.52f, y + h * 0.45f)
+            lineTo(x + w * 0.18f, y + h * 0.38f)
+            close()
+        }
+        canvas.drawPath(wingR, paint)
+        // 驾驶舱
+        paint.color = 0xFF550000.toInt()
+        canvas.drawOval(x - w * 0.1f, y - h * 0.18f, x + w * 0.1f, y + h * 0.1f, paint)
+        paint.color = 0x88FF8888.toInt()
+        canvas.drawOval(x - w * 0.07f, y - h * 0.16f, x + w * 0.07f, y + h * 0.06f, paint)
+        // 引擎（背部小发光）
+        paint.color = 0x88FF4400.toInt()
+        canvas.drawRect(x - w * 0.1f, y - h * 0.42f, x + w * 0.1f, y - h * 0.32f, paint)
+    }
+
+    // ---- 侦察机：扁平流线，Z字纹路 ----
+    private fun drawScoutEnemy(canvas: Canvas, e: ScoutEnemy) {
+        paint.style = Paint.Style.FILL
+        val x = e.x; val y = e.y; val w = e.width; val h = e.height
+        paint.color = 0xFFDD8800.toInt()
+        val body = Path().apply {
+            moveTo(x, y + h * 0.46f)
+            lineTo(x + w * 0.22f, y - h * 0.25f)
+            lineTo(x - w * 0.22f, y - h * 0.25f)
+            close()
+        }
+        canvas.drawPath(body, paint)
+        // Z字装饰条纹
+        paint.color = 0xFF993300.toInt()
+        paint.style = Paint.Style.STROKE
+        paint.strokeWidth = 1.5f
+        canvas.drawLine(x - w * 0.15f, y + h * 0.1f, x, y - h * 0.1f, paint)
+        canvas.drawLine(x, y - h * 0.1f, x + w * 0.15f, y + h * 0.1f, paint)
+        paint.style = Paint.Style.FILL
+        // 扁平小翼
+        paint.color = 0xFFCC6600.toInt()
+        val wing = Path().apply {
+            moveTo(x - w * 0.22f, y); lineTo(x - w * 0.45f, y + h * 0.3f)
+            lineTo(x - w * 0.16f, y + h * 0.38f); close()
+        }
+        canvas.drawPath(wing, paint)
+        val wingR = Path().apply {
+            moveTo(x + w * 0.22f, y); lineTo(x + w * 0.45f, y + h * 0.3f)
+            lineTo(x + w * 0.16f, y + h * 0.38f); close()
+        }
+        canvas.drawPath(wingR, paint)
+    }
+
+    // ---- 火焰战机：棱角深红，侧面有橙红焰纹 ----
+    private fun drawFireEnemy(canvas: Canvas, e: FireEnemy) {
+        paint.style = Paint.Style.FILL
+        val x = e.x; val y = e.y; val w = e.width; val h = e.height
+        paint.color = 0xFFDD1100.toInt()
+        val body = Path().apply {
+            moveTo(x, y + h * 0.46f)
+            lineTo(x + w * 0.28f, y + h * 0.05f)
+            lineTo(x + w * 0.22f, y - h * 0.38f)
+            lineTo(x - w * 0.22f, y - h * 0.38f)
+            lineTo(x - w * 0.28f, y + h * 0.05f)
+            close()
+        }
+        canvas.drawPath(body, paint)
+        // 侧翼（锯齿边缘）
+        paint.color = 0xFFAA0000.toInt()
+        val wingL = Path().apply {
+            moveTo(x - w * 0.28f, y - h * 0.1f)
+            lineTo(x - w * 0.55f, y + h * 0.2f)
+            lineTo(x - w * 0.35f, y + h * 0.35f)
+            lineTo(x - w * 0.22f, y + h * 0.28f)
+            close()
+        }
+        canvas.drawPath(wingL, paint)
+        val wingR = Path().apply {
+            moveTo(x + w * 0.28f, y - h * 0.1f)
+            lineTo(x + w * 0.55f, y + h * 0.2f)
+            lineTo(x + w * 0.35f, y + h * 0.35f)
+            lineTo(x + w * 0.22f, y + h * 0.28f)
+            close()
+        }
+        canvas.drawPath(wingR, paint)
+        // 驾驶舱（黑色）
+        paint.color = 0xFF330000.toInt()
+        canvas.drawOval(x - w * 0.12f, y - h * 0.28f, x + w * 0.12f, y + h * 0.02f, paint)
+        // 机身中线橙红装饰
+        paint.color = 0xFFFF6600.toInt()
+        canvas.drawRect(x - w * 0.03f, y - h * 0.36f, x + w * 0.03f, y + h * 0.3f, paint)
+    }
+
+    // ---- 自爆机：紧凑菱形炸弹状 ----
+    private fun drawSuicideEnemy(canvas: Canvas, e: SuicideEnemy) {
+        paint.style = Paint.Style.FILL
+        val x = e.x; val y = e.y; val w = e.width; val h = e.height
+        paint.color = 0xFFFF0000.toInt()
+        val body = Path().apply {
+            moveTo(x, y - h * 0.48f)
+            lineTo(x + w * 0.35f, y)
+            lineTo(x, y + h * 0.48f)
+            lineTo(x - w * 0.35f, y)
+            close()
+        }
+        canvas.drawPath(body, paint)
+        // 十字准星线
+        paint.color = 0xFFFFAAAA.toInt()
+        paint.style = Paint.Style.STROKE
+        paint.strokeWidth = 1.5f
+        canvas.drawLine(x - w * 0.25f, y, x + w * 0.25f, y, paint)
+        canvas.drawLine(x, y - h * 0.3f, x, y + h * 0.3f, paint)
+        paint.style = Paint.Style.FILL
+        // 中心警告标记
+        paint.color = 0xFFFFFFFF.toInt()
+        canvas.drawRect(x - w * 0.08f, y - h * 0.08f, x + w * 0.08f, y + h * 0.08f, paint)
+        paint.color = 0xFFFF0000.toInt()
+        canvas.drawRect(x - w * 0.04f, y - h * 0.04f, x + w * 0.04f, y + h * 0.04f, paint)
+    }
+
+    // ---- 轰炸机：宽扁大型，双引擎舱 ----
+    private fun drawBomberEnemy(canvas: Canvas, e: BomberEnemy) {
+        paint.style = Paint.Style.FILL
+        val x = e.x; val y = e.y; val w = e.width; val h = e.height
+        // 宽扁主机身
+        paint.color = 0xFF664400.toInt()
+        val body = Path().apply {
+            moveTo(x, y + h * 0.46f)
+            lineTo(x + w * 0.35f, y + h * 0.1f)
+            lineTo(x + w * 0.28f, y - h * 0.38f)
+            lineTo(x - w * 0.28f, y - h * 0.38f)
+            lineTo(x - w * 0.35f, y + h * 0.1f)
+            close()
+        }
+        canvas.drawPath(body, paint)
+        // 大型外伸机翼
+        paint.color = 0xFF553300.toInt()
+        val wingL = Path().apply {
+            moveTo(x - w * 0.35f, y - h * 0.1f)
+            lineTo(x - w * 0.58f, y + h * 0.35f)
+            lineTo(x - w * 0.28f, y + h * 0.38f)
+            close()
+        }
+        canvas.drawPath(wingL, paint)
+        val wingR = Path().apply {
+            moveTo(x + w * 0.35f, y - h * 0.1f)
+            lineTo(x + w * 0.58f, y + h * 0.35f)
+            lineTo(x + w * 0.28f, y + h * 0.38f)
+            close()
+        }
+        canvas.drawPath(wingR, paint)
+        // 双引擎舱（外凸鼓包）
+        paint.color = 0xFF442200.toInt()
+        canvas.drawRoundRect(x - w * 0.48f, y + h * 0.05f, x - w * 0.28f, y + h * 0.44f, 5f, 5f, paint)
+        canvas.drawRoundRect(x + w * 0.28f, y + h * 0.05f, x + w * 0.48f, y + h * 0.44f, 5f, 5f, paint)
+        // 驾驶舱
+        paint.color = 0xFF331100.toInt()
+        canvas.drawOval(x - w * 0.14f, y - h * 0.3f, x + w * 0.14f, y, paint)
+        paint.color = 0x88FFAA44.toInt()
+        canvas.drawOval(x - w * 0.1f, y - h * 0.28f, x + w * 0.1f, y - h * 0.08f, paint)
+    }
+
+    // ---- 鱼雷战机：修长鱼雷形，头部尖锐 ----
+    private fun drawTorpedoEnemy(canvas: Canvas, e: TorpedoEnemy) {
+        paint.style = Paint.Style.FILL
+        val x = e.x; val y = e.y; val w = e.width; val h = e.height
+        paint.color = 0xFF0066CC.toInt()
+        val body = Path().apply {
+            moveTo(x, y - h * 0.48f)
+            lineTo(x + w * 0.28f, y - h * 0.1f)
+            lineTo(x + w * 0.22f, y + h * 0.45f)
+            lineTo(x - w * 0.22f, y + h * 0.45f)
+            lineTo(x - w * 0.28f, y - h * 0.1f)
+            close()
+        }
+        canvas.drawPath(body, paint)
+        // 尾舵（横向宽展）
+        paint.color = 0xFF004499.toInt()
+        val tail = Path().apply {
+            moveTo(x - w * 0.22f, y + h * 0.3f)
+            lineTo(x - w * 0.5f, y + h * 0.48f)
+            lineTo(x - w * 0.12f, y + h * 0.48f)
+            lineTo(x + w * 0.12f, y + h * 0.48f)
+            lineTo(x + w * 0.5f, y + h * 0.48f)
+            lineTo(x + w * 0.22f, y + h * 0.3f)
+            close()
+        }
+        canvas.drawPath(tail, paint)
+        // 鱼雷头尖（银白）
+        paint.color = 0xFFAADDFF.toInt()
+        val nose = Path().apply {
+            moveTo(x - w * 0.12f, y - h * 0.48f)
+            lineTo(x, y - h * 0.58f)
+            lineTo(x + w * 0.12f, y - h * 0.48f)
+            close()
+        }
+        canvas.drawPath(nose, paint)
+        // 驾驶舱
+        paint.color = 0xFF002255.toInt()
+        canvas.drawOval(x - w * 0.1f, y - h * 0.3f, x + w * 0.1f, y - h * 0.05f, paint)
+    }
+
+    // ---- 编队战机：紧凑菱形，编队编号装饰 ----
+    private fun drawFormationEnemy(canvas: Canvas, e: FormationEnemy) {
+        paint.style = Paint.Style.FILL
+        val x = e.x; val y = e.y; val w = e.width; val h = e.height
+        paint.color = 0xFF3388DD.toInt()
+        val body = Path().apply {
+            moveTo(x, y - h * 0.46f)
+            lineTo(x + w * 0.3f, y + h * 0.1f)
+            lineTo(x, y + h * 0.46f)
+            lineTo(x - w * 0.3f, y + h * 0.1f)
+            close()
+        }
+        canvas.drawPath(body, paint)
+        // 翼尖小翼
+        paint.color = 0xFF2266BB.toInt()
+        val wingL = Path().apply {
+            moveTo(x - w * 0.3f, y + h * 0.05f)
+            lineTo(x - w * 0.48f, y + h * 0.32f)
+            lineTo(x - w * 0.22f, y + h * 0.32f)
+            close()
+        }
+        canvas.drawPath(wingL, paint)
+        val wingR = Path().apply {
+            moveTo(x + w * 0.3f, y + h * 0.05f)
+            lineTo(x + w * 0.48f, y + h * 0.32f)
+            lineTo(x + w * 0.22f, y + h * 0.32f)
+            close()
+        }
+        canvas.drawPath(wingR, paint)
+        // 白色编号点
+        paint.color = 0xFFFFFFFF.toInt()
+        canvas.drawCircle(x, y - h * 0.15f, w * 0.06f, paint)
+        // 机头高光
+        paint.color = 0x88AADDFF.toInt()
+        canvas.drawOval(x - w * 0.05f, y - h * 0.44f, x + w * 0.05f, y - h * 0.28f, paint)
+    }
+
+    // ---- 干扰机：带雷达天线和波纹装饰 ----
+    private fun drawJammerEnemy(canvas: Canvas, e: JammerEnemy) {
+        paint.style = Paint.Style.FILL
+        val x = e.x; val y = e.y; val w = e.width; val h = e.height
+        // 六边形主机身
+        paint.color = 0xFF22AA22.toInt()
+        val body = Path().apply {
+            moveTo(x, y - h * 0.46f)
+            lineTo(x + w * 0.3f, y - h * 0.1f)
+            lineTo(x + w * 0.25f, y + h * 0.42f)
+            lineTo(x - w * 0.25f, y + h * 0.42f)
+            lineTo(x - w * 0.3f, y - h * 0.1f)
+            close()
+        }
+        canvas.drawPath(body, paint)
+        // 顶部雷达天线
+        paint.color = 0xFF118811.toInt()
+        canvas.drawRect(x - w * 0.04f, y - h * 0.65f, x + w * 0.04f, y - h * 0.46f, paint)
+        paint.color = 0xFF44FF44.toInt()
+        canvas.drawCircle(x, y - h * 0.65f, w * 0.06f, paint)
+        // 横向天线杆
+        canvas.drawRect(x - w * 0.45f, y - h * 0.1f, x - w * 0.38f, y + h * 0.15f, paint)
+        canvas.drawRect(x + w * 0.38f, y - h * 0.1f, x + w * 0.45f, y + h * 0.15f, paint)
+        // 干扰波纹（3条弧线）
+        paint.style = Paint.Style.STROKE
+        paint.strokeWidth = 1f
+        paint.color = 0x8844FF44.toInt()
+        canvas.drawCircle(x, y - h * 0.65f, w * 0.18f, paint)
+        canvas.drawCircle(x, y - h * 0.65f, w * 0.28f, paint)
+        canvas.drawCircle(x, y - h * 0.65f, w * 0.38f, paint)
+        paint.style = Paint.Style.FILL
+        // 驾驶舱
+        paint.color = 0xFF114411.toInt()
+        canvas.drawOval(x - w * 0.1f, y - h * 0.3f, x + w * 0.1f, y, paint)
+    }
+
+    // ---- 护盾战机：六边形棱角+双层护盾光环 ----
+    private fun drawShieldEnemy(canvas: Canvas, e: ShieldEnemy) {
+        paint.style = Paint.Style.FILL
+        val x = e.x; val y = e.y; val w = e.width; val h = e.height
+        paint.color = 0xFF7733CC.toInt()
+        val body = Path().apply {
+            moveTo(x, y - h * 0.46f)
+            lineTo(x + w * 0.32f, y - h * 0.12f)
+            lineTo(x + w * 0.28f, y + h * 0.42f)
+            lineTo(x - w * 0.28f, y + h * 0.42f)
+            lineTo(x - w * 0.32f, y - h * 0.12f)
+            close()
+        }
+        canvas.drawPath(body, paint)
+        // 机身边缘高光（六边形线条）
+        paint.style = Paint.Style.STROKE
+        paint.strokeWidth = 2f
+        paint.color = 0xFFAA66FF.toInt()
+        canvas.drawPath(body, paint)
+        paint.style = Paint.Style.FILL
+        // 外层护盾（双层）
+        if (e.shieldLayers >= 1) {
+            paint.color = if (e.shieldLayers == 2) 0x509944FF.toInt() else 0x308844FF.toInt()
+            paint.style = Paint.Style.STROKE
+            paint.strokeWidth = 3f
+            canvas.drawCircle(x, y, w * 0.75f, paint)
+            paint.style = Paint.Style.FILL
+        }
+        if (e.shieldLayers >= 2) {
+            paint.color = 0x208844FF.toInt()
+            paint.style = Paint.Style.STROKE
+            paint.strokeWidth = 2f
+            canvas.drawCircle(x, y, w * 0.88f, paint)
+            paint.style = Paint.Style.FILL
+        }
+        // 驾驶舱
+        paint.color = 0xFF330066.toInt()
+        canvas.drawOval(x - w * 0.11f, y - h * 0.3f, x + w * 0.11f, y + h * 0.05f, paint)
+        paint.color = 0x88CC99FF.toInt()
+        canvas.drawOval(x - w * 0.08f, y - h * 0.28f, x + w * 0.08f, y - h * 0.08f, paint)
+    }
+
+    // ---- 宇宙战机：飞碟造型，中心发光球+四条腿 ----
+    private fun drawSpaceEnemy(canvas: Canvas, e: SpaceEnemy) {
+        paint.style = Paint.Style.FILL
+        val x = e.x; val y = e.y; val w = e.width; val h = e.height
+        // 飞碟主体（椭圆）
+        paint.color = 0xFF8800CC.toInt()
+        canvas.drawOval(x - w * 0.42f, y - h * 0.18f, x + w * 0.42f, y + h * 0.3f, paint)
+        // 驾驶舱球（发光）
+        paint.color = 0xFF550099.toInt()
+        canvas.drawCircle(x, y - h * 0.25f, w * 0.25f, paint)
+        paint.color = 0xCCDD88FF.toInt()
+        canvas.drawCircle(x, y - h * 0.28f, w * 0.16f, paint)
+        // 四条腿
+        paint.color = 0xFF550088.toInt()
+        canvas.drawRect(x - w * 0.38f, y + h * 0.28f, x - w * 0.25f, y + h * 0.48f, paint)
+        canvas.drawRect(x + w * 0.25f, y + h * 0.28f, x + w * 0.38f, y + h * 0.48f, paint)
+        canvas.drawRect(x - w * 0.08f, y + h * 0.28f, x + w * 0.08f, y + h * 0.48f, paint)
+        // 腿尖发光
+        paint.color = 0xFFAA44FF.toInt()
+        canvas.drawCircle(x - w * 0.32f, y + h * 0.48f, w * 0.06f, paint)
+        canvas.drawCircle(x + w * 0.32f, y + h * 0.48f, w * 0.06f, paint)
+        canvas.drawCircle(x, y + h * 0.48f, w * 0.06f, paint)
+    }
+
+    // ---- 隐形战机：倾斜钻石形，隐身时半透明 ----
+    private fun drawStealthEnemy(canvas: Canvas, e: StealthEnemy) {
+        paint.style = Paint.Style.FILL
+        val x = e.x; val y = e.y; val w = e.width; val h = e.height
+        val alpha = if (e.isStealthed) 0x44 else 0xCC
+        // 倾斜菱形机身
+        paint.color = (alpha shl 24) or 0x00FFFF
+        val body = Path().apply {
+            moveTo(x, y - h * 0.48f)
+            lineTo(x + w * 0.35f, y + h * 0.1f)
+            lineTo(x, y + h * 0.48f)
+            lineTo(x - w * 0.35f, y + h * 0.1f)
+            close()
+        }
+        canvas.drawPath(body, paint)
+        // 机身线条
+        paint.style = Paint.Style.STROKE
+        paint.strokeWidth = 1.5f
+        paint.color = (alpha shl 24) or 0xAAFFFF
+        canvas.drawPath(body, paint)
+        paint.style = Paint.Style.FILL
+        // 驾驶舱
+        paint.color = (alpha shl 24) or 0x003333
+        canvas.drawOval(x - w * 0.1f, y - h * 0.28f, x + w * 0.1f, y - h * 0.05f, paint)
+        // 隐身效果：淡出边缘
+        if (e.isStealthed) {
+            paint.color = 0x2200FFFF.toInt()
+            paint.style = Paint.Style.STROKE
+            paint.strokeWidth = 2f
+            canvas.drawCircle(x, y, w * 0.55f, paint)
+            paint.style = Paint.Style.FILL
+        }
+    }
+
+    // ---- 兜底：未分类敌机 ----
+    private fun drawGenericEnemy(canvas: Canvas, e: EnemyPlane) {
+        paint.style = Paint.Style.FILL
+        paint.color = 0xFFFF4444.toInt()
+        val cx = e.x; val cy = e.y; val w = e.width; val h = e.height
+        canvas.drawRect(cx - w * 0.25f, cy - h * 0.45f, cx + w * 0.25f, cy + h * 0.45f, paint)
+        paint.color = 0xFFCC2222.toInt()
+        val wing = Path().apply {
+            moveTo(cx - w * 0.5f, cy - h * 0.1f)
+            lineTo(cx - w * 0.25f, cy - h * 0.3f)
+            lineTo(cx - w * 0.25f, cy + h * 0.2f)
+            close()
+            moveTo(cx + w * 0.5f, cy - h * 0.1f)
+            lineTo(cx + w * 0.25f, cy - h * 0.3f)
+            lineTo(cx + w * 0.25f, cy + h * 0.2f)
+            close()
+        }
+        canvas.drawPath(wing, paint)
+    }
+
+    // ==================== Boss 精细绘制 ====================
+
     private fun drawBoss(canvas: Canvas, boss: Boss) {
         if (!boss.isAlive) return
-        val color = when (boss) {
-            is Boss1IronWing -> 0xFFCC4400.toInt()
-            is Boss2FlameKing -> 0xFFFF2200.toInt()
-            is Boss3DeepLord -> 0xFF0044FF.toInt()
-            is Boss4ThunderLord -> 0xFF44FF44.toInt()
-            is Boss5CosmicDestroyer -> 0xFFCC00FF.toInt()
-            else -> 0xFFFF0000.toInt()
+        val prevAlpha = paint.alpha
+        if (boss.isInvincible) paint.alpha = 120
+
+        when (boss) {
+            is Boss1IronWing     -> drawBoss1IronWing(canvas, boss)
+            is Boss2FlameKing    -> drawBoss2FlameKing(canvas, boss)
+            is Boss3DeepLord     -> drawBoss3DeepLord(canvas, boss)
+            is Boss4ThunderLord  -> drawBoss4ThunderLord(canvas, boss)
+            is Boss5CosmicDestroyer -> drawBoss5CosmicDestroyer(canvas, boss)
+            else                 -> drawGenericBoss(canvas, boss)
         }
 
-        // 无敌时半透明
-        if (boss.isInvincible) {
-            paint.alpha = 120
-        }
-
-        drawPixelPlane(canvas, boss.x, boss.y, boss.width, boss.height, color, isPlayer = false)
-        paint.alpha = 255
-
-        // Boss血量条
+        paint.alpha = prevAlpha
         drawBossHpBar(canvas, boss)
 
         // Boss分身（第5关）
         if (boss is Boss5CosmicDestroyer) {
             boss.activeClones.forEach { clone ->
-                drawPixelPlane(canvas, clone.x, clone.y, clone.width, clone.height,
-                    0x88CC00FF.toInt(), isPlayer = false)
+                paint.alpha = 140
+                drawBossClone(canvas, clone)
+                paint.alpha = prevAlpha
             }
         }
     }
+
+    // ---- Boss1 铁翼长老：大双翼战机+炮管 ----
+    private fun drawBoss1IronWing(canvas: Canvas, b: Boss1IronWing) {
+        paint.style = Paint.Style.FILL
+        val x = b.x; val y = b.y; val w = b.width; val h = b.height
+        // 主机身（矩形块状）
+        paint.color = 0xFFCC4400.toInt()
+        canvas.drawRect(x - w * 0.25f, y - h * 0.42f, x + w * 0.25f, y + h * 0.42f, paint)
+        // 大型双翼
+        paint.color = 0xFF993300.toInt()
+        val wingL = Path().apply {
+            moveTo(x - w * 0.25f, y - h * 0.1f)
+            lineTo(x - w * 0.55f, y + h * 0.35f)
+            lineTo(x - w * 0.38f, y + h * 0.42f)
+            lineTo(x - w * 0.18f, y + h * 0.28f)
+            close()
+        }
+        canvas.drawPath(wingL, paint)
+        val wingR = Path().apply {
+            moveTo(x + w * 0.25f, y - h * 0.1f)
+            lineTo(x + w * 0.55f, y + h * 0.35f)
+            lineTo(x + w * 0.38f, y + h * 0.42f)
+            lineTo(x + w * 0.18f, y + h * 0.28f)
+            close()
+        }
+        canvas.drawPath(wingR, paint)
+        // 头部炮管（向下两根）
+        paint.color = 0xFF773300.toInt()
+        canvas.drawRoundRect(x - w * 0.18f, y + h * 0.38f, x - w * 0.06f, y + h * 0.55f, 3f, 3f, paint)
+        canvas.drawRoundRect(x + w * 0.06f, y + h * 0.38f, x + w * 0.18f, y + h * 0.55f, 3f, 3f, paint)
+        // 驾驶舱
+        paint.color = 0xFF551100.toInt()
+        canvas.drawOval(x - w * 0.14f, y - h * 0.32f, x + w * 0.14f, y - h * 0.05f, paint)
+        paint.color = 0xAAFF9966.toInt()
+        canvas.drawOval(x - w * 0.1f, y - h * 0.3f, x + w * 0.1f, y - h * 0.1f, paint)
+    }
+
+    // ---- Boss2 烈焰魔王：顶部火焰王冠+双角 ----
+    private fun drawBoss2FlameKing(canvas: Canvas, b: Boss2FlameKing) {
+        paint.style = Paint.Style.FILL
+        val x = b.x; val y = b.y; val w = b.width; val h = b.height
+        // 厚重主机身
+        paint.color = 0xFFDD1100.toInt()
+        canvas.drawRect(x - w * 0.3f, y - h * 0.38f, x + w * 0.3f, y + h * 0.42f, paint)
+        // 火焰王冠（顶部两尖刺）
+        paint.color = 0xFFFF4400.toInt()
+        val crownL = Path().apply {
+            moveTo(x - w * 0.28f, y - h * 0.38f)
+            lineTo(x - w * 0.18f, y - h * 0.58f)
+            lineTo(x - w * 0.08f, y - h * 0.38f)
+            close()
+        }
+        canvas.drawPath(crownL, paint)
+        val crownR = Path().apply {
+            moveTo(x + w * 0.08f, y - h * 0.38f)
+            lineTo(x + w * 0.18f, y - h * 0.58f)
+            lineTo(x + w * 0.28f, y - h * 0.38f)
+            close()
+        }
+        canvas.drawPath(crownR, paint)
+        // 侧面机翼
+        paint.color = 0xFFAA0000.toInt()
+        val wingL = Path().apply {
+            moveTo(x - w * 0.3f, y - h * 0.1f)
+            lineTo(x - w * 0.58f, y + h * 0.3f)
+            lineTo(x - w * 0.22f, y + h * 0.42f)
+            close()
+        }
+        canvas.drawPath(wingL, paint)
+        val wingR = Path().apply {
+            moveTo(x + w * 0.3f, y - h * 0.1f)
+            lineTo(x + w * 0.58f, y + h * 0.3f)
+            lineTo(x + w * 0.22f, y + h * 0.42f)
+            close()
+        }
+        canvas.drawPath(wingR, paint)
+        // 装甲条（生命低时显示受损）
+        if (b.hasArmor) {
+            paint.color = 0xFF885500.toInt()
+            canvas.drawRect(x - w * 0.32f, y - h * 0.05f, x + w * 0.32f, y + h * 0.12f, paint)
+            paint.color = 0xFFBB8800.toInt()
+            paint.style = Paint.Style.STROKE
+            paint.strokeWidth = 2f
+            canvas.drawRect(x - w * 0.32f, y - h * 0.05f, x + w * 0.32f, y + h * 0.12f, paint)
+            paint.style = Paint.Style.FILL
+        }
+        // 驾驶舱
+        paint.color = 0xFF330000.toInt()
+        canvas.drawOval(x - w * 0.14f, y - h * 0.28f, x + w * 0.14f, y, paint)
+        paint.color = 0xAAFF6633.toInt()
+        canvas.drawOval(x - w * 0.1f, y - h * 0.26f, x + w * 0.1f, y - h * 0.08f, paint)
+    }
+
+    // ---- Boss3 深海主宰：鲸鱼流线型+鳍状突出 ----
+    private fun drawBoss3DeepLord(canvas: Canvas, b: Boss3DeepLord) {
+        paint.style = Paint.Style.FILL
+        val x = b.x; val y = b.y; val w = b.width; val h = b.height
+        // 流线主身躯（椭圆形）
+        paint.color = 0xFF0033CC.toInt()
+        canvas.drawOval(x - w * 0.35f, y - h * 0.4f, x + w * 0.35f, y + h * 0.45f, paint)
+        // 背鳍
+        paint.color = 0xFF002299.toInt()
+        val fin = Path().apply {
+            moveTo(x - w * 0.12f, y - h * 0.4f)
+            lineTo(x, y - h * 0.62f)
+            lineTo(x + w * 0.12f, y - h * 0.4f)
+            close()
+        }
+        canvas.drawPath(fin, paint)
+        // 两侧胸鳍
+        val pL = Path().apply {
+            moveTo(x - w * 0.35f, y)
+            lineTo(x - w * 0.52f, y + h * 0.3f)
+            lineTo(x - w * 0.22f, y + h * 0.25f)
+            close()
+        }
+        canvas.drawPath(pL, paint)
+        val pR = Path().apply {
+            moveTo(x + w * 0.35f, y)
+            lineTo(x + w * 0.52f, y + h * 0.3f)
+            lineTo(x + w * 0.22f, y + h * 0.25f)
+            close()
+        }
+        canvas.drawPath(pR, paint)
+        // 眼睛（深海中发光的）
+        paint.color = 0xFF88FFFF.toInt()
+        canvas.drawCircle(x - w * 0.14f, y - h * 0.15f, w * 0.06f, paint)
+        canvas.drawCircle(x + w * 0.14f, y - h * 0.15f, w * 0.06f, paint)
+        paint.color = 0xFF001133.toInt()
+        canvas.drawCircle(x - w * 0.14f, y - h * 0.15f, w * 0.03f, paint)
+        canvas.drawCircle(x + w * 0.14f, y - h * 0.15f, w * 0.03f, paint)
+    }
+
+    // ---- Boss4 雷霆支配者：三叉闪电形 ----
+    private fun drawBoss4ThunderLord(canvas: Canvas, b: Boss4ThunderLord) {
+        paint.style = Paint.Style.FILL
+        val x = b.x; val y = b.y; val w = b.width; val h = b.height
+        // 中心主体（椭圆）
+        paint.color = 0xFF22BB22.toInt()
+        canvas.drawOval(x - w * 0.28f, y - h * 0.38f, x + w * 0.28f, y + h * 0.42f, paint)
+        // 三叉闪电：左右各一个分叉
+        paint.color = 0xFF118811.toInt()
+        val叉L = Path().apply {
+            moveTo(x - w * 0.28f, y - h * 0.1f)
+            lineTo(x - w * 0.52f, y - h * 0.45f)
+            lineTo(x - w * 0.38f, y - h * 0.38f)
+            close()
+        }
+        canvas.drawPath(叉L, paint)
+        val叉R = Path().apply {
+            moveTo(x + w * 0.28f, y - h * 0.1f)
+            lineTo(x + w * 0.52f, y - h * 0.45f)
+            lineTo(x + w * 0.38f, y - h * 0.38f)
+            close()
+        }
+        canvas.drawPath(叉R, paint)
+        // 闪电线条（黄色高光）
+        paint.style = Paint.Style.STROKE
+        paint.strokeWidth = 2.5f
+        paint.color = 0xFFFFFF00.toInt()
+        canvas.drawLine(x - w * 0.5f, y - h * 0.1f, x, y + h * 0.1f, paint)
+        canvas.drawLine(x, y + h * 0.1f, x + w * 0.5f, y - h * 0.1f, paint)
+        paint.style = Paint.Style.FILL
+        // 核心能量球
+        paint.color = 0xFF66FF66.toInt()
+        canvas.drawCircle(x, y, w * 0.15f, paint)
+        paint.color = 0xFFFFFFAA.toInt()
+        canvas.drawCircle(x, y, w * 0.08f, paint)
+    }
+
+    // ---- Boss5 宇宙毁灭者：飞船造型+多炮口 ----
+    private fun drawBoss5CosmicDestroyer(canvas: Canvas, b: Boss5CosmicDestroyer) {
+        paint.style = Paint.Style.FILL
+        val x = b.x; val y = b.y; val w = b.width; val h = b.height
+        // 主船体（宽扁矩形）
+        paint.color = 0xFF8800CC.toInt()
+        canvas.drawRect(x - w * 0.38f, y - h * 0.35f, x + w * 0.38f, y + h * 0.42f, paint)
+        // 驾驶舱（发光球）
+        paint.color = 0xFF550099.toInt()
+        canvas.drawCircle(x, y - h * 0.32f, w * 0.22f, paint)
+        paint.color = 0xCCDD88FF.toInt()
+        canvas.drawCircle(x, y - h * 0.35f, w * 0.14f, paint)
+        // 四个炮口（圆形）
+        paint.color = 0xFFFF4400.toInt()
+        canvas.drawCircle(x - w * 0.22f, y + h * 0.35f, w * 0.07f, paint)
+        canvas.drawCircle(x - w * 0.06f, y + h * 0.38f, w * 0.07f, paint)
+        canvas.drawCircle(x + w * 0.06f, y + h * 0.38f, w * 0.07f, paint)
+        canvas.drawCircle(x + w * 0.22f, y + h * 0.35f, w * 0.07f, paint)
+        // 机身边缘线条
+        paint.style = Paint.Style.STROKE
+        paint.strokeWidth = 2f
+        paint.color = 0xFFBB44FF.toInt()
+        canvas.drawRect(x - w * 0.38f, y - h * 0.35f, x + w * 0.38f, y + h * 0.42f, paint)
+        paint.style = Paint.Style.FILL
+        // 能量条装饰（根据phase变化颜色）
+        paint.color = when {
+            b.phase == 3 -> 0xFFFF0066.toInt()
+            b.phase == 2 -> 0xFFFF8800.toInt()
+            else -> 0xFF8800FF.toInt()
+        }
+        canvas.drawRect(x - w * 0.3f, y - h * 0.05f, x + w * 0.3f, y + h * 0.12f, paint)
+    }
+
+    // ---- Boss兜底 ----
+    private fun drawGenericBoss(canvas: Canvas, b: Boss) {
+        paint.style = Paint.Style.FILL
+        paint.color = 0xFFFF0000.toInt()
+        canvas.drawRect(b.x - b.width * 0.3f, b.y - b.height * 0.4f, b.x + b.width * 0.3f, b.y + b.height * 0.4f, paint)
+    }
+
+    // ---- Boss5分身 ----
+    private fun drawBossClone(canvas: Canvas, c: BossClone) {
+        paint.style = Paint.Style.FILL
+        paint.color = 0xAA8800CC.toInt()
+        canvas.drawOval(c.x - c.width * 0.38f, c.y - c.height * 0.35f, c.x + c.width * 0.38f, c.y + c.height * 0.42f, paint)
+        paint.color = 0xCCDD88FF.toInt()
+        canvas.drawCircle(c.x, c.y - c.height * 0.28f, c.width * 0.18f, paint)
+    }
+
+    // ==================== 辅助绘制函数 ====================
 
     private fun drawBossHpBar(canvas: Canvas, boss: Boss) {
         val barW = GameConfig.LOGICAL_WIDTH - 40f
