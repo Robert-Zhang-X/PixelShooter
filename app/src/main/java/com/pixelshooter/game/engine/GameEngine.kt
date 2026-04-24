@@ -82,9 +82,9 @@ class GameEngine(
             spawnBoss()
         }
 
-        // 更新敌机
+        // 更新敌机（先快照后遍历，避免 forEach 内部 addAll 触发 ConcurrentModificationException）
         enemies.removeAll { !it.isAlive }
-        enemies.forEach { enemy ->
+        enemies.toList().forEach { enemy ->
             enemy.update(deltaMs)
             val fired = enemy.fire(player.x, player.y)
             bullets.addAll(fired)
@@ -120,16 +120,16 @@ class GameEngine(
             }
         }
 
-        // 更新子弹
+        // 更新子弹（先快照后遍历，避免并发修改）
         bullets.removeAll { !it.isAlive }
-        bullets.forEach { it.update(deltaMs) }
+        bullets.toList().forEach { it.update(deltaMs) }
 
         // 子弹碰撞检测
         detectBulletCollisions()
 
-        // 更新道具
+        // 更新道具（先快照后遍历）
         items.removeAll { !it.isAlive }
-        items.forEach { item ->
+        items.toList().forEach { item ->
             item.update(deltaMs)
             if (CollisionSystem.isColliding(item.collisionBounds, player.collisionBounds)) {
                 player.applyItem(item)
@@ -254,7 +254,7 @@ class GameEngine(
         player.bombs--
         // 清除所有敌机子弹，对所有敌机造成200伤害
         bullets.removeAll { !it.isPlayerBullet }
-        enemies.forEach { e -> e.hp -= 200; if (e.hp <= 0) { e.isAlive = false; player.score += e.scoreValue } }
+        enemies.toList().forEach { e -> e.hp -= 200; if (e.hp <= 0) { e.isAlive = false; player.score += e.scoreValue } }
         boss?.let { b -> if (!b.isInvincible) { b.hp -= 200; if (b.hp <= 0) b.isAlive = false } }
         onBombUpdate(player.bombs)
         onScoreUpdate(player.score)
