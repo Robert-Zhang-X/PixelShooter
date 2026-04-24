@@ -91,7 +91,6 @@ class GameRenderer(private val config: GameConfig = GameConfig) {
     // ==================== 玩家飞机 ====================
     private fun drawPlayer(canvas: Canvas, player: PlayerPlane) {
         if (!player.isAlive) return
-        // 闪烁效果（无敌期）
         if (player.isInvincible && (System.currentTimeMillis() / 100) % 2 == 0L) return
 
         val x = player.x; val y = player.y
@@ -101,21 +100,23 @@ class GameRenderer(private val config: GameConfig = GameConfig) {
         if (player.shieldTimeMs > 0) {
             paint.color = 0x4400BFFF
             paint.style = Paint.Style.FILL
-            canvas.drawCircle(x, y, w * 0.8f, paint)
+            canvas.drawCircle(x, y, w * 0.85f, paint)
             paint.color = 0xFF00BFFF.toInt()
             paint.style = Paint.Style.STROKE
-            paint.strokeWidth = 2f
-            canvas.drawCircle(x, y, w * 0.8f, paint)
+            paint.strokeWidth = 2.5f
+            canvas.drawCircle(x, y, w * 0.85f, paint)
+            // 护盾六边形光纹
+            paint.color = 0x2200BFFF
+            canvas.drawCircle(x, y, w * 0.65f, paint)
             paint.style = Paint.Style.FILL
         }
 
-        // 机身颜色
-        val bodyColor = when (player.planeType) {
-            PlaneType.FALCON -> 0xFF00FF88.toInt()
-            PlaneType.STORM  -> 0xFFFFAA00.toInt()
-            PlaneType.HUNTERII -> 0xFF00AAFF.toInt()
+        // 按飞机类型分别精细绘制
+        when (player.planeType) {
+            PlaneType.FALCON   -> drawFalcon(canvas, x, y, w, h)
+            PlaneType.STORM    -> drawStorm(canvas, x, y, w, h)
+            PlaneType.HUNTERII -> drawHunterII(canvas, x, y, w, h)
         }
-        drawPixelPlane(canvas, x, y, w, h, bodyColor, isPlayer = true)
 
         // 强化buff光效
         if (player.powerUpTimeMs > 0) {
@@ -127,7 +128,180 @@ class GameRenderer(private val config: GameConfig = GameConfig) {
         }
     }
 
-    // ==================== 通用像素飞机绘制 ====================
+    // ---- 猎鹰号：绿色流线型单发穿透机 ----
+    private fun drawFalcon(canvas: Canvas, x: Float, y: Float, w: Float, h: Float) {
+        paint.style = Paint.Style.FILL
+        // 机身（细长梭形）
+        paint.color = 0xFF00DD77.toInt()
+        val body = Path().apply {
+            moveTo(x, y - h * 0.48f)          // 机头
+            lineTo(x + w * 0.22f, y - h * 0.1f)
+            lineTo(x + w * 0.18f, y + h * 0.45f)
+            lineTo(x - w * 0.18f, y + h * 0.45f)
+            lineTo(x - w * 0.22f, y - h * 0.1f)
+            close()
+        }
+        canvas.drawPath(body, paint)
+        // 主机翼（后掠翼）
+        paint.color = 0xFF00AA55.toInt()
+        val wingL = Path().apply {
+            moveTo(x - w * 0.22f, y + h * 0.05f)
+            lineTo(x - w * 0.52f, y + h * 0.35f)
+            lineTo(x - w * 0.42f, y + h * 0.45f)
+            lineTo(x - w * 0.18f, y + h * 0.3f)
+            close()
+        }
+        canvas.drawPath(wingL, paint)
+        val wingR = Path().apply {
+            moveTo(x + w * 0.22f, y + h * 0.05f)
+            lineTo(x + w * 0.52f, y + h * 0.35f)
+            lineTo(x + w * 0.42f, y + h * 0.45f)
+            lineTo(x + w * 0.18f, y + h * 0.3f)
+            close()
+        }
+        canvas.drawPath(wingR, paint)
+        // 尾翼
+        paint.color = 0xFF00BB66.toInt()
+        val tailL = Path().apply {
+            moveTo(x - w * 0.18f, y + h * 0.3f)
+            lineTo(x - w * 0.32f, y + h * 0.48f)
+            lineTo(x - w * 0.12f, y + h * 0.48f)
+            close()
+        }
+        canvas.drawPath(tailL, paint)
+        val tailR = Path().apply {
+            moveTo(x + w * 0.18f, y + h * 0.3f)
+            lineTo(x + w * 0.32f, y + h * 0.48f)
+            lineTo(x + w * 0.12f, y + h * 0.48f)
+            close()
+        }
+        canvas.drawPath(tailR, paint)
+        // 驾驶舱玻璃
+        paint.color = 0xFF004422.toInt()
+        canvas.drawOval(x - w * 0.1f, y - h * 0.32f, x + w * 0.1f, y - h * 0.02f, paint)
+        paint.color = 0xBB88FFCC.toInt()
+        canvas.drawOval(x - w * 0.07f, y - h * 0.30f, x + w * 0.07f, y - h * 0.06f, paint)
+        // 机头高光
+        paint.color = 0x8800FFAA.toInt()
+        canvas.drawOval(x - w * 0.04f, y - h * 0.47f, x + w * 0.04f, y - h * 0.28f, paint)
+        // 引擎火焰
+        paint.color = 0xFFFF6600.toInt()
+        canvas.drawOval(x - w * 0.1f, y + h * 0.43f, x + w * 0.1f, y + h * 0.58f, paint)
+        paint.color = 0xFFFFCC00.toInt()
+        canvas.drawOval(x - w * 0.06f, y + h * 0.43f, x + w * 0.06f, y + h * 0.53f, paint)
+    }
+
+    // ---- 风暴号：橙色宽翼散射机 ----
+    private fun drawStorm(canvas: Canvas, x: Float, y: Float, w: Float, h: Float) {
+        paint.style = Paint.Style.FILL
+        // 宽机身
+        paint.color = 0xFFEE8800.toInt()
+        val body = Path().apply {
+            moveTo(x, y - h * 0.42f)
+            lineTo(x + w * 0.28f, y + h * 0.0f)
+            lineTo(x + w * 0.24f, y + h * 0.45f)
+            lineTo(x - w * 0.24f, y + h * 0.45f)
+            lineTo(x - w * 0.28f, y + h * 0.0f)
+            close()
+        }
+        canvas.drawPath(body, paint)
+        // 大展机翼
+        paint.color = 0xFFCC6600.toInt()
+        val wingL = Path().apply {
+            moveTo(x - w * 0.28f, y - h * 0.05f)
+            lineTo(x - w * 0.58f, y + h * 0.15f)
+            lineTo(x - w * 0.55f, y + h * 0.38f)
+            lineTo(x - w * 0.24f, y + h * 0.28f)
+            close()
+        }
+        canvas.drawPath(wingL, paint)
+        val wingR = Path().apply {
+            moveTo(x + w * 0.28f, y - h * 0.05f)
+            lineTo(x + w * 0.58f, y + h * 0.15f)
+            lineTo(x + w * 0.55f, y + h * 0.38f)
+            lineTo(x + w * 0.24f, y + h * 0.28f)
+            close()
+        }
+        canvas.drawPath(wingR, paint)
+        // 双引擎舱（左右凸出）
+        paint.color = 0xFF994400.toInt()
+        canvas.drawRoundRect(x - w * 0.38f, y + h * 0.1f, x - w * 0.22f, y + h * 0.45f, 4f, 4f, paint)
+        canvas.drawRoundRect(x + w * 0.22f, y + h * 0.1f, x + w * 0.38f, y + h * 0.45f, 4f, 4f, paint)
+        // 驾驶舱
+        paint.color = 0xFF552200.toInt()
+        canvas.drawOval(x - w * 0.12f, y - h * 0.28f, x + w * 0.12f, y + h * 0.05f, paint)
+        paint.color = 0xBBFFCC88.toInt()
+        canvas.drawOval(x - w * 0.09f, y - h * 0.26f, x + w * 0.09f, y - h * 0.0f, paint)
+        // 机头高光
+        paint.color = 0x88FFAA00.toInt()
+        canvas.drawOval(x - w * 0.05f, y - h * 0.40f, x + w * 0.05f, y - h * 0.18f, paint)
+        // 双引擎火焰
+        paint.color = 0xFFFF6600.toInt()
+        canvas.drawOval(x - w * 0.35f, y + h * 0.43f, x - w * 0.22f, y + h * 0.56f, paint)
+        canvas.drawOval(x + w * 0.22f, y + h * 0.43f, x + w * 0.35f, y + h * 0.56f, paint)
+        paint.color = 0xFFFFDD00.toInt()
+        canvas.drawOval(x - w * 0.32f, y + h * 0.43f, x - w * 0.25f, y + h * 0.52f, paint)
+        canvas.drawOval(x + w * 0.25f, y + h * 0.43f, x + w * 0.32f, y + h * 0.52f, paint)
+    }
+
+    // ---- 猎鹰II号：蓝色导弹追踪机 ----
+    private fun drawHunterII(canvas: Canvas, x: Float, y: Float, w: Float, h: Float) {
+        paint.style = Paint.Style.FILL
+        // 机身（稍宽，有厚重感）
+        paint.color = 0xFF1188EE.toInt()
+        val body = Path().apply {
+            moveTo(x, y - h * 0.46f)
+            lineTo(x + w * 0.24f, y - h * 0.08f)
+            lineTo(x + w * 0.20f, y + h * 0.44f)
+            lineTo(x - w * 0.20f, y + h * 0.44f)
+            lineTo(x - w * 0.24f, y - h * 0.08f)
+            close()
+        }
+        canvas.drawPath(body, paint)
+        // 后掠机翼
+        paint.color = 0xFF0066CC.toInt()
+        val wingL = Path().apply {
+            moveTo(x - w * 0.24f, y + h * 0.08f)
+            lineTo(x - w * 0.55f, y + h * 0.32f)
+            lineTo(x - w * 0.48f, y + h * 0.45f)
+            lineTo(x - w * 0.20f, y + h * 0.30f)
+            close()
+        }
+        canvas.drawPath(wingL, paint)
+        val wingR = Path().apply {
+            moveTo(x + w * 0.24f, y + h * 0.08f)
+            lineTo(x + w * 0.55f, y + h * 0.32f)
+            lineTo(x + w * 0.48f, y + h * 0.45f)
+            lineTo(x + w * 0.20f, y + h * 0.30f)
+            close()
+        }
+        canvas.drawPath(wingR, paint)
+        // 导弹挂架（左右翼下）
+        paint.color = 0xFF557799.toInt()
+        canvas.drawRoundRect(x - w * 0.48f, y + h * 0.18f, x - w * 0.30f, y + h * 0.36f, 3f, 3f, paint)
+        canvas.drawRoundRect(x + w * 0.30f, y + h * 0.18f, x + w * 0.48f, y + h * 0.36f, 3f, 3f, paint)
+        // 导弹头（橙红色）
+        paint.color = 0xFFFF5533.toInt()
+        val missL = Path().apply { moveTo(x - w * 0.48f, y + h * 0.18f); lineTo(x - w * 0.39f, y + h * 0.10f); lineTo(x - w * 0.30f, y + h * 0.18f); close() }
+        canvas.drawPath(missL, paint)
+        val missR = Path().apply { moveTo(x + w * 0.30f, y + h * 0.18f); lineTo(x + w * 0.39f, y + h * 0.10f); lineTo(x + w * 0.48f, y + h * 0.18f); close() }
+        canvas.drawPath(missR, paint)
+        // 驾驶舱
+        paint.color = 0xFF003366.toInt()
+        canvas.drawOval(x - w * 0.11f, y - h * 0.32f, x + w * 0.11f, y + h * 0.02f, paint)
+        paint.color = 0xBBAADDFF.toInt()
+        canvas.drawOval(x - w * 0.08f, y - h * 0.30f, x + w * 0.08f, y - h * 0.04f, paint)
+        // 机头高光
+        paint.color = 0x880099FF.toInt()
+        canvas.drawOval(x - w * 0.04f, y - h * 0.44f, x + w * 0.04f, y - h * 0.22f, paint)
+        // 主引擎火焰
+        paint.color = 0xFF4488FF.toInt()
+        canvas.drawOval(x - w * 0.12f, y + h * 0.42f, x + w * 0.12f, y + h * 0.60f, paint)
+        paint.color = 0xFFCCEEFF.toInt()
+        canvas.drawOval(x - w * 0.07f, y + h * 0.42f, x + w * 0.07f, y + h * 0.54f, paint)
+    }
+
+    // ==================== 通用像素飞机绘制（敌机使用）====================
     private fun drawPixelPlane(
         canvas: Canvas, cx: Float, cy: Float,
         w: Float, h: Float, color: Int, isPlayer: Boolean
@@ -160,10 +334,10 @@ class GameRenderer(private val config: GameConfig = GameConfig) {
             }
         }
         canvas.drawPath(wingPath, paint)
-        // 驾驶舱（深色小矩形）
+        // 驾驶舱
         paint.color = darken(color)
         canvas.drawRect(cx - w * 0.12f, cy - h * 0.3f, cx + w * 0.12f, cy, paint)
-        // 引擎火焰（玩家飞机下方）
+        // 引擎火焰
         if (isPlayer) {
             paint.color = 0xFFFF6600.toInt()
             canvas.drawRect(cx - w * 0.12f, cy + h * 0.4f, cx + w * 0.12f, cy + h * 0.55f, paint)
