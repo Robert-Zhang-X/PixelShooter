@@ -959,20 +959,20 @@ class GameRenderer(private val config: GameConfig = GameConfig) {
         canvas.drawOval(x - w * 0.28f, y - h * 0.38f, x + w * 0.28f, y + h * 0.42f, paint)
         // 三叉闪电：左右各一个分叉
         paint.color = 0xFF118811.toInt()
-        val叉L = Path().apply {
+        val forkL = Path().apply {
             moveTo(x - w * 0.28f, y - h * 0.1f)
             lineTo(x - w * 0.52f, y - h * 0.45f)
             lineTo(x - w * 0.38f, y - h * 0.38f)
             close()
         }
-        canvas.drawPath(叉L, paint)
-        val叉R = Path().apply {
+        canvas.drawPath(forkL, paint)
+        val forkR = Path().apply {
             moveTo(x + w * 0.28f, y - h * 0.1f)
             lineTo(x + w * 0.52f, y - h * 0.45f)
             lineTo(x + w * 0.38f, y - h * 0.38f)
             close()
         }
-        canvas.drawPath(叉R, paint)
+        canvas.drawPath(forkR, paint)
         // 闪电线条（黄色高光）
         paint.style = Paint.Style.STROKE
         paint.strokeWidth = 2.5f
